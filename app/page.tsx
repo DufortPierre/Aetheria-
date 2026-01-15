@@ -7,6 +7,7 @@ import ForecastDisplay from '@/components/ForecastDisplay'
 import CitySearch from '@/components/CitySearch'
 import LanguageSelector from '@/components/LanguageSelector'
 import BottomSheet from '@/components/BottomSheet'
+import MobileActionBar from '@/components/MobileActionBar'
 import { 
   getCurrentWeather, 
   getAirQuality,
@@ -207,21 +208,13 @@ export default function Home() {
         <CitySearch onCitySelect={(lat, lon, name) => handleCitySelect(lat, lon, name, true)} />
       </div>
 
-      {/* CONTROLES MOBILE - Langue et Thème sous la barre de recherche */}
-      <div className="md:hidden absolute top-20 right-2 z-[9999] flex items-center gap-2">
-        <LanguageSelector />
-        <button
-          onClick={toggleDarkMode}
-          className={`${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} rounded-lg px-2 py-1.5 backdrop-blur-md flex items-center gap-1 ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-slate-100'} transition-colors`}
-          aria-label={isDarkMode ? 'Mode jour' : 'Mode nuit'}
-        >
-          {isDarkMode ? (
-            <Sun className={`w-4 h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
-          ) : (
-            <Moon className={`w-4 h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
-          )}
-        </button>
-      </div>
+      {/* BARRE FLOTTANTE MOBILE - 4 boutons regroupés au-dessus du Bottom Sheet */}
+      <MobileActionBar
+        onGeolocate={handleGeolocate}
+        onToggleFullscreen={() => setIsFullscreen(!isFullscreen)}
+        isFullscreen={isFullscreen}
+        isGeolocating={isGeolocating}
+      />
 
       {/* HEADER DESKTOP - Barre de recherche centrée, boutons à droite */}
       {/* Barre de recherche centrée au milieu */}
