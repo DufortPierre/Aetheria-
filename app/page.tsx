@@ -66,11 +66,26 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language])
 
-  const handleLocationClick = async (lat: number, lon: number, updateLocation = true) => {
+  // Actualisation automatique des données météo toutes les 5 minutes
+  useEffect(() => {
+    if (!selectedLocation) return
+
+    const interval = setInterval(() => {
+      // Actualiser les données silencieusement (sans loader) toutes les 5 minutes
+      handleLocationClick(selectedLocation.lat, selectedLocation.lon, false, false)
+    }, 5 * 60 * 1000) // 5 minutes = 300 000 millisecondes
+
+    // Nettoyer l'intervalle quand le composant se démonte ou la localisation change
+    return () => clearInterval(interval)
+  }, [selectedLocation, language]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleLocationClick = async (lat: number, lon: number, updateLocation = true, showLoading = true) => {
     if (updateLocation) {
       setSelectedLocation({ lat, lon })
     }
-    setLoading(true)
+    if (showLoading) {
+      setLoading(true)
+    }
 
     try {
       // Reverse geocoding pour obtenir le nom de la ville dans la langue sélectionnée
@@ -95,7 +110,9 @@ export default function Home() {
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error)
     } finally {
-      setLoading(false)
+      if (showLoading) {
+        setLoading(false)
+      }
     }
   }
 
