@@ -19,9 +19,28 @@ interface MapWrapperProps {
   selectedLocation?: { lat: number; lon: number } | null
   flyToLocation?: { lat: number; lon: number; zoom?: number } | null
   isDarkMode?: boolean
+  onGeolocate?: () => void
+  onRecenter?: () => void
+  onToggleFullscreen?: () => void
+  isFullscreen?: boolean
+  isGeolocating?: boolean
+  showRecenter?: boolean
+  showActionStack?: boolean
 }
 
-export default function MapWrapper({ onLocationClick, selectedLocation, flyToLocation, isDarkMode: isDarkModeProp = true }: MapWrapperProps) {
+export default function MapWrapper({ 
+  onLocationClick, 
+  selectedLocation, 
+  flyToLocation, 
+  isDarkMode: isDarkModeProp = true,
+  onGeolocate,
+  onRecenter,
+  onToggleFullscreen,
+  isFullscreen = false,
+  isGeolocating = false,
+  showRecenter = false,
+  showActionStack = false
+}: MapWrapperProps) {
   const { t } = useLanguage()
   const { isDarkMode: isDarkModeContext } = useDarkMode()
   const isDarkMode = isDarkModeProp ?? isDarkModeContext
@@ -46,6 +65,13 @@ export default function MapWrapper({ onLocationClick, selectedLocation, flyToLoc
         selectedLocation={selectedLocation}
         flyToLocation={flyToLocation}
         isDarkMode={isDarkMode}
+        onGeolocate={onGeolocate}
+        onRecenter={onRecenter}
+        onToggleFullscreen={onToggleFullscreen}
+        isFullscreen={isFullscreen}
+        isGeolocating={isGeolocating}
+        showRecenter={showRecenter}
+        showActionStack={showActionStack}
       />
       {/* Instructions traduites */}
       <div className="absolute bottom-4 left-4 z-[1000] pointer-events-none">

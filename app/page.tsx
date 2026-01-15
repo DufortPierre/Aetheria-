@@ -19,7 +19,7 @@ import {
   AirQualityData,
   ForecastData
 } from '@/lib/weatherService'
-import { Loader2, Maximize2, Minimize2, MapPin, Sun, Moon, Target } from 'lucide-react'
+import { Loader2, Maximize2, Minimize2, MapPin, Sun, Moon, Target, ZoomIn, ZoomOut } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useDarkMode } from '@/contexts/DarkModeContext'
 
@@ -192,6 +192,13 @@ export default function Home() {
           selectedLocation={selectedLocation}
           flyToLocation={flyToLocation}
           isDarkMode={isDarkMode}
+          onGeolocate={handleGeolocate}
+          onRecenter={handleRecenter}
+          onToggleFullscreen={() => setIsFullscreen(!isFullscreen)}
+          isFullscreen={isFullscreen}
+          isGeolocating={isGeolocating}
+          showRecenter={!!selectedLocation}
+          showActionStack={!isFullscreen}
         />
       </div>
 
@@ -235,41 +242,26 @@ export default function Home() {
         </div>
       )}
 
-      {/* GROUPE 2 : Outils (Géolocalisation, Fullscreen) - En bas à droite, style FAB sur mobile */}
+      {/* GROUPE 2 : Outils pour desktop (les boutons mobile sont dans MapActionStack) */}
       {!isFullscreen && (
-        <div className="absolute bottom-32 md:bottom-auto md:top-4 md:right-4 right-4 z-[450] flex flex-col md:flex-row gap-2 md:gap-3">
+        <div className="hidden md:flex absolute top-4 right-4 z-[450] items-center gap-3">
           {/* Bouton géolocalisation */}
           <button
             onClick={handleGeolocate}
             disabled={isGeolocating}
-            className={`rounded-full md:rounded-lg w-12 h-12 md:w-auto md:h-auto md:px-3 md:py-2 ${isDarkMode ? 'glass bg-black/60 shadow-xl' : 'bg-white/95 border border-slate-200 shadow-xl'} backdrop-blur-md flex items-center justify-center ${isDarkMode ? 'hover:bg-white/20' : 'hover:bg-slate-100'} transition-colors disabled:opacity-50`}
+            className={`rounded-lg px-3 py-2 ${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} backdrop-blur-md flex items-center gap-2 ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-slate-100'} transition-colors disabled:opacity-50`}
             aria-label="Géolocalisation"
           >
-            <MapPin className={`w-5 h-5 md:w-4 md:h-4 ${isGeolocating ? 'animate-pulse' : ''} ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
+            <MapPin className={`w-4 h-4 ${isGeolocating ? 'animate-pulse' : ''} ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
           </button>
-
-          {/* Bouton recentrer (mobile uniquement) */}
-          {selectedLocation && (
-            <button
-              onClick={handleRecenter}
-              className={`rounded-full md:hidden w-12 h-12 ${isDarkMode ? 'glass bg-black/60 shadow-xl' : 'bg-white/95 border border-slate-200 shadow-xl'} backdrop-blur-md flex items-center justify-center ${isDarkMode ? 'hover:bg-white/20' : 'hover:bg-slate-100'} transition-colors`}
-              aria-label="Recentrer la carte"
-            >
-              <Target className={`w-5 h-5 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
-            </button>
-          )}
 
           {/* Bouton mode plein écran */}
           <button
             onClick={() => setIsFullscreen(!isFullscreen)}
-            className={`rounded-full md:rounded-lg w-12 h-12 md:w-auto md:h-auto md:px-3 md:py-2 ${isDarkMode ? 'glass bg-black/60 shadow-xl' : 'bg-white/95 border border-slate-200 shadow-xl'} backdrop-blur-md flex items-center justify-center ${isDarkMode ? 'hover:bg-white/20' : 'hover:bg-slate-100'} transition-colors`}
+            className={`rounded-lg px-3 py-2 ${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} backdrop-blur-md flex items-center gap-2 ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-slate-100'} transition-colors`}
             aria-label={isFullscreen ? 'Quitter le mode plein écran' : 'Mode plein écran'}
           >
-            {isFullscreen ? (
-              <Minimize2 className={`w-5 h-5 md:w-4 md:h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
-            ) : (
-              <Maximize2 className={`w-5 h-5 md:w-4 md:h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
-            )}
+            <Maximize2 className={`w-4 h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
           </button>
         </div>
       )}

@@ -12,7 +12,7 @@ interface BottomSheetProps {
 export default function BottomSheet({ 
   children, 
   isOpen = true,
-  defaultHeight = 40 
+  defaultHeight = 35 // Réduit à ~35% pour correspondre à ~140px de peek 
 }: BottomSheetProps) {
   const { isDarkMode } = useDarkMode()
   const [height, setHeight] = useState(defaultHeight)

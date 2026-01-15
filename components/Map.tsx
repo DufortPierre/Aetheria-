@@ -6,6 +6,7 @@ import type { Map as LeafletMap } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { useLanguage } from '@/contexts/LanguageContext'
 import type { Language } from '@/lib/i18n'
+import { MapActionStack } from './MapActionStack'
 
 
 interface MapProps {
@@ -13,6 +14,13 @@ interface MapProps {
   selectedLocation?: { lat: number; lon: number } | null
   flyToLocation?: { lat: number; lon: number; zoom?: number } | null
   isDarkMode?: boolean
+  onGeolocate?: () => void
+  onRecenter?: () => void
+  onToggleFullscreen?: () => void
+  isFullscreen?: boolean
+  isGeolocating?: boolean
+  showRecenter?: boolean
+  showActionStack?: boolean
 }
 
 // Composant pour supprimer définitivement les contrôles inutiles (boussole, rotation, etc.)
@@ -390,7 +398,7 @@ export default function Map({ onLocationClick, selectedLocation, flyToLocation, 
         preferCanvas={false}
         maxBounds={[[-90, -180], [90, 180]]}
         maxBoundsViscosity={1.0}
-        zoomControl={true} // Activer les contrôles de zoom pour mobile
+        zoomControl={false} // Désactiver les contrôles de zoom par défaut (on utilise des boutons personnalisés)
         attributionControl={false}
         doubleClickZoom={true}
         boxZoom={false} // Désactiver boxZoom sur mobile (peut causer des problèmes)
@@ -420,6 +428,19 @@ export default function Map({ onLocationClick, selectedLocation, flyToLocation, 
 
         {/* Point simple à la position cliquée */}
         <ClickPoint selectedLocation={selectedLocation} isDarkMode={isDarkMode} />
+
+        {/* Action Stack pour mobile */}
+        {showActionStack && (
+          <MapActionStack
+            onGeolocate={onGeolocate}
+            onRecenter={onRecenter}
+            onToggleFullscreen={onToggleFullscreen}
+            isFullscreen={isFullscreen}
+            isGeolocating={isGeolocating}
+            showRecenter={showRecenter}
+            isMobile={true}
+          />
+        )}
 
       </MapContainer>
     </div>
