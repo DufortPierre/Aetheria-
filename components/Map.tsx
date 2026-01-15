@@ -280,7 +280,8 @@ function FlyToLocation({ location }: { location: { lat: number; lon: number; zoo
         try {
           if (map && map.getContainer() && map.getContainer().offsetHeight > 0) {
             const container = map.getContainer()
-            if (container && container._leaflet_id) {
+            // Vérifier que la carte Leaflet est bien initialisée
+            if (container && (container as any)._leaflet_id) {
               map.flyTo([location.lat, location.lon], location.zoom || 10, {
                 duration: 1.5,
               })
