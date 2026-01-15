@@ -47,7 +47,7 @@ export default function ForecastDisplay({ forecastData, loading }: ForecastDispl
   }))
 
   return (
-    <div className="w-full">
+    <div className={`${isDarkMode ? 'glass-strong bg-black/40' : 'bg-white/80 border border-slate-200 shadow-xl'} rounded-xl md:rounded-2xl p-4 md:p-6 w-full max-w-md ${isDarkMode ? 'backdrop-blur-md' : 'backdrop-blur-lg'}`}>
       <div className="flex items-center gap-2 mb-2 md:mb-3">
         <Calendar className={`w-4 h-4 md:w-5 md:h-5 ${isDarkMode ? 'text-cyan-400' : 'text-cyan-600'}`} />
         <h3 className={`text-base md:text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.forecast7Days}</h3>

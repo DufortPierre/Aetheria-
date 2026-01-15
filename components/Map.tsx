@@ -441,18 +441,16 @@ export default function Map({
         {/* Point simple à la position cliquée */}
         <ClickPoint selectedLocation={selectedLocation} isDarkMode={isDarkMode} />
 
-        {/* Action Stack pour mobile */}
-        {showActionStack && (
-          <MapActionStack
-            onGeolocate={onGeolocate}
-            onRecenter={onRecenter}
-            onToggleFullscreen={onToggleFullscreen}
-            isFullscreen={isFullscreen}
-            isGeolocating={isGeolocating}
-            showRecenter={showRecenter}
-            isMobile={true}
-          />
-        )}
+        {/* Action Stack pour mobile (toujours visible, même en plein écran) */}
+        <MapActionStack
+          onGeolocate={onGeolocate}
+          onRecenter={onRecenter}
+          onToggleFullscreen={onToggleFullscreen}
+          isFullscreen={isFullscreen}
+          isGeolocating={isGeolocating}
+          showRecenter={showRecenter}
+          isMobile={true}
+        />
 
       </MapContainer>
     </div>

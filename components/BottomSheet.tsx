@@ -22,7 +22,7 @@ export default function BottomSheet({
   const sheetRef = useRef<HTMLDivElement>(null)
 
   // Positions prédéfinies : collapsed, partial, expanded
-  const snapPoints = [25, 50, 85] // Pourcentages de hauteur
+  const snapPoints = [25, 50, 80] // Pourcentages de hauteur (réduit le max à 80%)
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setIsDragging(true)

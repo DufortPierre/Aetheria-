@@ -124,7 +124,7 @@ export default function WeatherDisplay({
       }
 
   return (
-    <div className={`${isDarkMode ? 'bg-transparent' : 'bg-transparent'} w-full space-y-2 md:space-y-3`}>
+    <div className={`${isDarkMode ? 'glass-strong bg-black/40' : 'bg-white/80 border border-slate-200 shadow-xl'} rounded-xl md:rounded-2xl p-4 md:p-6 w-full max-w-md ${isDarkMode ? 'backdrop-blur-md' : 'backdrop-blur-lg'} space-y-3 md:space-y-4`}>
       {/* En-tête avec température */}
       <div className="mb-2 md:mb-3">
         {locationName && (

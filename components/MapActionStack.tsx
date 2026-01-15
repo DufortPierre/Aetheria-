@@ -41,13 +41,13 @@ export function MapActionStack({
   const buttonClass = `rounded-full w-12 h-12 ${isDarkMode ? 'glass bg-black/60 shadow-xl' : 'bg-white/95 border border-slate-200 shadow-xl'} backdrop-blur-md flex items-center justify-center ${isDarkMode ? 'hover:bg-white/20' : 'hover:bg-slate-100'} transition-colors active:scale-95`
   const iconClass = `w-5 h-5 ${isDarkMode ? 'text-white' : 'text-slate-700'}`
 
+  // Cette stack est uniquement pour mobile
   if (!isMobile) {
-    // Sur desktop, on ne montre pas cette stack (les boutons sont ailleurs)
     return null
   }
 
   return (
-    <div className="fixed bottom-40 right-4 z-[450] flex flex-col gap-3 pointer-events-auto">
+    <div className="fixed bottom-40 right-4 z-[9999] flex flex-col gap-3 pointer-events-auto md:hidden">
       {/* Bouton Plein Écran */}
       <button
         onClick={onToggleFullscreen}

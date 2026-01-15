@@ -198,54 +198,58 @@ export default function Home() {
           isFullscreen={isFullscreen}
           isGeolocating={isGeolocating}
           showRecenter={!!selectedLocation}
-          showActionStack={!isFullscreen}
+          showActionStack={true} // Toujours true, l'ActionStack gère elle-même l'affichage mobile
         />
       </div>
 
-      {/* Barre de recherche en haut - Mobile First */}
-      {!isFullscreen && (
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[400] w-[calc(100vw-2rem)] md:w-full md:max-w-md md:left-1/2 md:transform md:-translate-x-1/2">
-          <CitySearch onCitySelect={(lat, lon, name) => handleCitySelect(lat, lon, name, true)} />
-        </div>
-      )}
+      {/* BARRE DE RECHERCHE - Mobile et Desktop séparés */}
+      {/* Mobile */}
+      <div className="md:hidden absolute top-4 left-1/2 transform -translate-x-1/2 z-[9999] w-[calc(100vw-2rem)]">
+        <CitySearch onCitySelect={(lat, lon, name) => handleCitySelect(lat, lon, name, true)} />
+      </div>
+      
+      {/* Desktop - Centrée en haut */}
+      <div className="hidden md:block absolute top-4 left-1/2 transform -translate-x-1/2 z-[9999] w-full max-w-md">
+        <CitySearch onCitySelect={(lat, lon, name) => handleCitySelect(lat, lon, name, true)} />
+      </div>
 
-      {/* GROUPE 1 : Paramètres (Langue, Thème) - En haut à droite, sous la barre de recherche sur mobile */}
-      {!isFullscreen && (
-        <div className="absolute top-20 md:top-4 right-2 md:right-4 z-[400] flex items-center gap-2 md:gap-3">
-          {/* Sélecteur de langue */}
-          <div className="md:hidden">
-            <LanguageSelector />
-          </div>
-          <div className="hidden md:block">
-            <LanguageSelector />
-          </div>
-          
-          {/* Bouton bascule jour/nuit */}
+      {/* CONTROLES EN HAUT À DROITE */}
+      <div className="absolute top-4 md:top-20 right-2 md:right-4 z-[9999] flex items-center gap-2 md:gap-3">
+        {/* Mobile : Langue et Thème sous la barre de recherche */}
+        <div className="md:hidden flex items-center gap-2">
+          <LanguageSelector />
           <button
             onClick={toggleDarkMode}
-            className={`${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} rounded-lg px-2 md:px-3 py-1.5 md:py-2 backdrop-blur-md flex items-center gap-1 md:gap-2 ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-slate-100'} transition-colors`}
+            className={`${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} rounded-lg px-2 py-1.5 backdrop-blur-md flex items-center gap-1 ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-slate-100'} transition-colors`}
             aria-label={isDarkMode ? 'Mode jour' : 'Mode nuit'}
           >
             {isDarkMode ? (
-              <Sun className={`w-4 h-4 md:w-5 md:h-5 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
+              <Sun className={`w-4 h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
             ) : (
-              <Moon className={`w-4 h-4 md:w-5 md:h-5 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
+              <Moon className={`w-4 h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
             )}
           </button>
+        </div>
 
-          {/* Titre - Desktop uniquement */}
-          <div className={`${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} rounded-lg px-4 md:px-6 py-1.5 md:py-3 backdrop-blur-md hidden md:block`}>
-            <h1 className={`text-xl md:text-2xl font-bold ${isDarkMode ? 'bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent' : 'bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent'}`}>
+        {/* Desktop : Titre, Langue, Thème, Géolocalisation, Plein écran */}
+        <div className="hidden md:flex items-center gap-3">
+          <div className={`${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} rounded-lg px-6 py-3 backdrop-blur-md`}>
+            <h1 className={`text-2xl font-bold ${isDarkMode ? 'bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent' : 'bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent'}`}>
               Aetheria
             </h1>
           </div>
-        </div>
-      )}
-
-      {/* GROUPE 2 : Outils pour desktop (les boutons mobile sont dans MapActionStack) */}
-      {!isFullscreen && (
-        <div className="hidden md:flex absolute top-4 right-4 z-[450] items-center gap-3">
-          {/* Bouton géolocalisation */}
+          <LanguageSelector />
+          <button
+            onClick={toggleDarkMode}
+            className={`${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} rounded-lg px-3 py-2 backdrop-blur-md flex items-center gap-2 ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-slate-100'} transition-colors`}
+            aria-label={isDarkMode ? 'Mode jour' : 'Mode nuit'}
+          >
+            {isDarkMode ? (
+              <Sun className={`w-4 h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
+            ) : (
+              <Moon className={`w-4 h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
+            )}
+          </button>
           <button
             onClick={handleGeolocate}
             disabled={isGeolocating}
@@ -254,68 +258,71 @@ export default function Home() {
           >
             <MapPin className={`w-4 h-4 ${isGeolocating ? 'animate-pulse' : ''} ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
           </button>
-
-          {/* Bouton mode plein écran */}
           <button
             onClick={() => setIsFullscreen(!isFullscreen)}
             className={`rounded-lg px-3 py-2 ${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} backdrop-blur-md flex items-center gap-2 ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-slate-100'} transition-colors`}
             aria-label={isFullscreen ? 'Quitter le mode plein écran' : 'Mode plein écran'}
           >
-            <Maximize2 className={`w-4 h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
+            {isFullscreen ? (
+              <Minimize2 className={`w-4 h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
+            ) : (
+              <Maximize2 className={`w-4 h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
+            )}
           </button>
         </div>
-      )}
+      </div>
 
-      {/* Bottom Sheet pour mobile */}
-      {!isFullscreen && (
-        <BottomSheet isOpen={true} defaultHeight={40}>
-          <div className="space-y-3">
-            <WeatherDisplay
-              weatherData={weatherData}
-              airQualityData={airQualityData}
-              loading={loading}
-              locationName={locationName}
-            />
-            
-            {forecastData && (
-              <ForecastDisplay
-                forecastData={forecastData}
+      {/* BOTTOM SHEET - Mobile uniquement */}
+      <div className="md:hidden">
+        {!isFullscreen && (
+          <BottomSheet isOpen={true} defaultHeight={35}>
+            <div className="space-y-3">
+              <WeatherDisplay
+                weatherData={weatherData}
+                airQualityData={airQualityData}
                 loading={loading}
+                locationName={locationName}
               />
-            )}
-          </div>
-        </BottomSheet>
-      )}
-
-      {/* Panneaux latéraux pour desktop - Responsive */}
-      {!isFullscreen && (
-        <div 
-          className="hidden md:block absolute top-20 left-4 z-[400] max-h-[calc(100vh-6rem)] overflow-y-auto space-y-4" 
-          style={{ 
-            position: 'relative', 
-            zIndex: 50,
-            pointerEvents: 'none', // Laisser passer les clics vers la carte
-          }}
-        >
-          <div style={{ pointerEvents: 'auto' }} className="w-full max-w-[420px]">
-            <WeatherDisplay
-              weatherData={weatherData}
-              airQualityData={airQualityData}
-              loading={loading}
-              locationName={locationName}
-            />
-          </div>
-          
-          {forecastData && (
-            <div style={{ pointerEvents: 'auto' }} className="w-full max-w-[420px]">
-              <ForecastDisplay
-                forecastData={forecastData}
-                loading={loading}
-              />
+              
+              {forecastData && (
+                <ForecastDisplay
+                  forecastData={forecastData}
+                  loading={loading}
+                />
+              )}
             </div>
-          )}
+          </BottomSheet>
+        )}
+      </div>
+
+      {/* ACTION STACK - Mobile uniquement (rendue dans Map pour accéder à useMap) */}
+      {/* L'ActionStack est rendue dans Map.tsx avec showActionStack */}
+
+      {/* PANNEAUX LATÉRAUX - Desktop uniquement */}
+      <div 
+        className="hidden md:block absolute top-20 left-4 z-[9999] max-h-[calc(100vh-6rem)] overflow-y-auto space-y-4" 
+        style={{ 
+          pointerEvents: 'none',
+        }}
+      >
+        <div style={{ pointerEvents: 'auto' }} className="w-full max-w-[420px]">
+          <WeatherDisplay
+            weatherData={weatherData}
+            airQualityData={airQualityData}
+            loading={loading}
+            locationName={locationName}
+          />
         </div>
-      )}
+        
+        {forecastData && (
+          <div style={{ pointerEvents: 'auto' }} className="w-full max-w-[420px]">
+            <ForecastDisplay
+              forecastData={forecastData}
+              loading={loading}
+            />
+          </div>
+        )}
+      </div>
 
       {/* Indicateur de chargement global */}
       {loading && (

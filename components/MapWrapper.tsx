@@ -71,7 +71,7 @@ export default function MapWrapper({
         isFullscreen={isFullscreen}
         isGeolocating={isGeolocating}
         showRecenter={showRecenter}
-        showActionStack={showActionStack}
+          showActionStack={false} // L'ActionStack sera rendue séparément pour mobile uniquement
       />
       {/* Instructions traduites */}
       <div className="absolute bottom-4 left-4 z-[1000] pointer-events-none">
