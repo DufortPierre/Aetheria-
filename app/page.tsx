@@ -243,7 +243,7 @@ export default function Home() {
           style={{ 
             position: 'relative', 
             zIndex: 50,
-            pointerEvents: 'auto',
+            pointerEvents: 'none', // Laisser passer les clics vers la carte
             maxWidth: '100%',
             // Sur mobile, les panneaux prennent toute la largeur en bas
             // Sur desktop, ils restent à gauche avec une largeur limitée
