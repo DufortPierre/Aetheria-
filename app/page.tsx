@@ -300,9 +300,13 @@ export default function Home() {
       {/* ACTION STACK - Mobile uniquement (rendue dans Map pour accéder à useMap) */}
       {/* L'ActionStack est rendue dans Map.tsx avec showActionStack */}
 
-      {/* PANNEAUX LATÉRAUX - Desktop uniquement */}
+      {/* PANNEAUX LATÉRAUX - Desktop uniquement (masqués en plein écran) */}
       <div 
-        className="hidden md:block absolute top-20 left-4 z-[9999] max-h-[calc(100vh-6rem)] overflow-y-auto space-y-4" 
+        className={`hidden md:block absolute top-20 left-4 z-[9999] max-h-[calc(100vh-6rem)] overflow-y-auto space-y-4 transition-all duration-500 ease-in-out ${
+          isFullscreen 
+            ? 'opacity-0 pointer-events-none -translate-x-full' 
+            : 'opacity-100'
+        }`}
         style={{ 
           pointerEvents: 'none',
         }}
