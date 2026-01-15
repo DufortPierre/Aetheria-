@@ -124,22 +124,22 @@ export default function WeatherDisplay({
       }
 
   return (
-    <div className={`${isDarkMode ? 'glass-strong bg-black/40' : 'bg-white/80 border border-slate-200 shadow-xl'} rounded-xl sm:rounded-2xl p-4 sm:p-6 w-full max-w-md ${isDarkMode ? 'backdrop-blur-md' : 'backdrop-blur-lg'} space-y-3 sm:space-y-4`}>
+    <div className={`${isDarkMode ? 'bg-transparent' : 'bg-transparent'} w-full space-y-2 md:space-y-3`}>
       {/* En-tête avec température */}
-      <div className="mb-3 sm:mb-4">
+      <div className="mb-2 md:mb-3">
         {locationName && (
-          <p className={`text-xs sm:text-sm ${isDarkMode ? 'text-white/60' : 'text-slate-600'} mb-1 truncate`}>{locationName}</p>
+          <p className={`text-xs md:text-sm ${isDarkMode ? 'text-white/80' : 'text-slate-900'} mb-0.5 md:mb-1 font-medium truncate`}>{locationName}</p>
         )}
-        <div className="flex items-center gap-2 sm:gap-3 mb-2">
-          <span className={`text-4xl sm:text-5xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{Math.round(current.temperature_2m)}°C</span>
-          <div className="text-3xl sm:text-4xl">{weatherCode.emoji}</div>
+        <div className="flex items-baseline gap-2 md:gap-3 mb-1 md:mb-2">
+          <span className={`text-3xl md:text-5xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{Math.round(current.temperature_2m)}°C</span>
+          <div className="text-2xl md:text-4xl">{weatherCode.emoji}</div>
         </div>
-        <p className={`text-xs sm:text-sm mb-1 ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`}>{weatherCode.label}</p>
-        <p className={`text-[10px] sm:text-xs ${isDarkMode ? 'text-white/80' : 'text-slate-700'}`}>
+        <p className={`text-xs md:text-sm mb-0.5 md:mb-1 ${isDarkMode ? 'text-white/70' : 'text-slate-700'}`}>{weatherCode.label}</p>
+        <p className={`text-[10px] md:text-xs ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`}>
           {new Date(current.time).toLocaleString(language === 'fr' ? 'fr-FR' : language === 'es' ? 'es-ES' : 'en-US', {
-            weekday: 'long',
+            weekday: 'short',
             day: 'numeric',
-            month: 'long',
+            month: 'short',
             hour: '2-digit',
             minute: '2-digit',
           })}
@@ -183,70 +183,47 @@ export default function WeatherDisplay({
         </div>
       )}
 
-      {/* Stats principales */}
-      <div className="grid grid-cols-2 gap-2 sm:gap-4">
-        <div className={`p-2 sm:p-3 rounded-lg ${isDarkMode ? 'bg-white/5' : 'bg-slate-100/50 border border-slate-200'}`}>
-          <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
-            <Droplets className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
-            <span className={`text-[10px] sm:text-xs ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`}>{t.humidity}</span>
+      {/* Stats principales - grille 2 colonnes */}
+      <div className="grid grid-cols-2 gap-2 md:gap-3">
+        <div className={`p-2 md:p-3 rounded-lg ${isDarkMode ? 'bg-white/10' : 'bg-slate-100/70 border border-slate-200'}`}>
+          <div className="flex items-center gap-1 md:gap-1.5 mb-0.5 md:mb-1">
+            <Droplets className={`w-3 h-3 md:w-4 md:h-4 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+            <span className={`text-[9px] md:text-xs ${isDarkMode ? 'text-white/70' : 'text-slate-600'}`}>{t.humidity}</span>
           </div>
-          <p className={`text-base sm:text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{current.relative_humidity_2m}{t.percent}</p>
+          <p className={`text-sm md:text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{current.relative_humidity_2m}{t.percent}</p>
         </div>
 
-        <div className={`p-2 sm:p-3 rounded-lg ${isDarkMode ? 'bg-white/5' : 'bg-slate-100/50 border border-slate-200'}`}>
-          <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
-            <Gauge className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`} />
-            <span className={`text-[10px] sm:text-xs ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`}>{t.pressure}</span>
+        <div className={`p-2 md:p-3 rounded-lg ${isDarkMode ? 'bg-white/10' : 'bg-slate-100/70 border border-slate-200'}`}>
+          <div className="flex items-center gap-1 md:gap-1.5 mb-0.5 md:mb-1">
+            <Gauge className={`w-3 h-3 md:w-4 md:h-4 ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`} />
+            <span className={`text-[9px] md:text-xs ${isDarkMode ? 'text-white/70' : 'text-slate-600'}`}>{t.pressure}</span>
           </div>
-          <p className={`text-base sm:text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{Math.round(current.surface_pressure)} {t.hpa}</p>
+          <p className={`text-sm md:text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{Math.round(current.surface_pressure)} {t.hpa}</p>
         </div>
-      </div>
 
-      {/* Vent avec flèche pivotante */}
-      <div className={`p-3 sm:p-4 rounded-lg ${isDarkMode ? 'bg-white/5' : 'bg-slate-100/50 border border-slate-200'}`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Wind className={`w-4 h-4 sm:w-5 sm:h-5 ${isDarkMode ? 'text-cyan-400' : 'text-cyan-600'}`} />
-            <div>
-              <p className={`text-xs sm:text-sm font-medium ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.wind}</p>
-              <p className={`text-[10px] sm:text-xs ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`}>{windSpeedKmh} {t.kmh}</p>
+        {/* Vent */}
+        <div className={`p-2 md:p-3 rounded-lg ${isDarkMode ? 'bg-white/10' : 'bg-slate-100/70 border border-slate-200'}`}>
+          <div className="flex items-center gap-1 md:gap-1.5 mb-0.5 md:mb-1">
+            <Wind className={`w-3 h-3 md:w-4 md:h-4 ${isDarkMode ? 'text-cyan-400' : 'text-cyan-600'}`} />
+            <span className={`text-[9px] md:text-xs ${isDarkMode ? 'text-white/70' : 'text-slate-600'}`}>{t.wind}</span>
+          </div>
+          <p className={`text-sm md:text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{windSpeedKmh} {t.kmh}</p>
+        </div>
+
+        {/* Visibilité */}
+        {current.visibility > 0 && (
+          <div className={`p-2 md:p-3 rounded-lg ${isDarkMode ? 'bg-white/10' : 'bg-slate-100/70 border border-slate-200'}`}>
+            <div className="flex items-center gap-1 md:gap-1.5 mb-0.5 md:mb-1">
+              <Eye className={`w-3 h-3 md:w-4 md:h-4 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+              <span className={`text-[9px] md:text-xs ${isDarkMode ? 'text-white/70' : 'text-slate-600'}`}>{t.visibility}</span>
             </div>
+            <p className={`text-sm md:text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+              {(current.visibility / 1000).toFixed(1)} {t.km}
+            </p>
           </div>
-          <div
-            className={`transition-transform duration-300 ease-out ${isDarkMode ? 'text-cyan-400' : 'text-cyan-600'}`}
-            style={{
-              transform: `rotate(${current.wind_direction_10m}deg)`,
-            }}
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="sm:w-6 sm:h-6"
-            >
-              <path d="M12 2v20M12 2l4 4M12 2L8 6" />
-            </svg>
-          </div>
-        </div>
+        )}
       </div>
 
-      {/* Visibilité */}
-      {current.visibility > 0 && (
-        <div className={`p-2 sm:p-3 rounded-lg ${isDarkMode ? 'bg-white/5' : 'bg-slate-100/50 border border-slate-200'}`}>
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <Eye className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
-            <span className={`text-[10px] sm:text-xs ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`}>{t.visibility}</span>
-            <span className={`ml-auto text-xs sm:text-sm font-medium ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
-              {(current.visibility / 1000).toFixed(1)} {t.km}
-            </span>
-          </div>
-        </div>
-      )}
 
       {/* Qualité de l'air avec pastille de couleur */}
       {airQualityData && aqiInfo && (

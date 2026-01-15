@@ -47,13 +47,13 @@ export default function ForecastDisplay({ forecastData, loading }: ForecastDispl
   }))
 
   return (
-    <div className={`${isDarkMode ? 'glass-strong bg-black/40' : 'bg-white/80 border border-slate-200 shadow-xl'} rounded-xl sm:rounded-2xl p-4 sm:p-6 w-full max-w-md ${isDarkMode ? 'backdrop-blur-md' : 'backdrop-blur-lg'}`}>
-      <div className="flex items-center gap-2 mb-3 sm:mb-4">
-        <Calendar className={`w-4 h-4 sm:w-5 sm:h-5 ${isDarkMode ? 'text-cyan-400' : 'text-cyan-600'}`} />
-        <h3 className={`text-lg sm:text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.forecast7Days}</h3>
+    <div className="w-full">
+      <div className="flex items-center gap-2 mb-2 md:mb-3">
+        <Calendar className={`w-4 h-4 md:w-5 md:h-5 ${isDarkMode ? 'text-cyan-400' : 'text-cyan-600'}`} />
+        <h3 className={`text-base md:text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.forecast7Days}</h3>
       </div>
 
-      <div className="space-y-2 sm:space-y-3 max-h-80 sm:max-h-96 overflow-y-auto">
+      <div className="space-y-1.5 md:space-y-3">
         {forecastDays.map((day, index) => {
           const weatherInfo = WEATHER_CODES[day.weatherCode] || {
             label: 'Inconnu',
@@ -72,47 +72,47 @@ export default function ForecastDisplay({ forecastData, loading }: ForecastDispl
           return (
             <div
               key={day.date.toISOString()}
-              className={`p-2 sm:p-3 rounded-lg border ${
+              className={`p-2 md:p-3 rounded-lg border ${
                 isToday 
                   ? isDarkMode 
                     ? 'border-cyan-500/30 bg-cyan-500/10' 
                     : 'border-cyan-500/40 bg-cyan-500/20'
                   : isDarkMode
-                    ? 'bg-white/5 border-white/10'
-                    : 'bg-slate-100/50 border-slate-200'
+                    ? 'bg-white/10 border-white/10'
+                    : 'bg-slate-100/70 border-slate-200'
               }`}
             >
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                  <div className="text-xl sm:text-2xl flex-shrink-0">{weatherInfo.emoji}</div>
+              <div className="flex items-center justify-between gap-1.5 md:gap-2">
+                <div className="flex items-center gap-1.5 md:gap-3 flex-1 min-w-0">
+                  <div className="text-lg md:text-2xl flex-shrink-0">{weatherInfo.emoji}</div>
                   <div className="flex-1 min-w-0">
-                    <p className={`font-medium text-xs sm:text-sm ${isToday ? 'text-cyan-300' : isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                    <p className={`font-medium text-xs md:text-sm ${isToday ? 'text-cyan-300' : isDarkMode ? 'text-white' : 'text-slate-900'}`}>
                       {dayName}
                     </p>
-                    <p className={`text-[10px] sm:text-xs truncate ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`}>{weatherInfo.label}</p>
+                    <p className={`text-[9px] md:text-xs truncate ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`}>{weatherInfo.label}</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+                <div className="flex items-center gap-1.5 md:gap-4 flex-shrink-0">
                   {/* Températures */}
                   <div className="text-right">
-                    <p className={`text-xs sm:text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                    <p className={`text-xs md:text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
                       {Math.round(day.tempMax)}°/{Math.round(day.tempMin)}°
                     </p>
                   </div>
 
                   {/* Précipitations */}
                   {day.precipitation > 0 && (
-                    <div className="flex items-center gap-0.5 sm:gap-1 text-blue-400">
-                      <CloudRain className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                      <span className="text-[10px] sm:text-xs">{day.precipitation.toFixed(1)}mm</span>
+                    <div className={`flex items-center gap-0.5 md:gap-1 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>
+                      <CloudRain className="w-3 h-3 md:w-4 md:h-4" />
+                      <span className="text-[9px] md:text-xs">{day.precipitation.toFixed(1)}mm</span>
                     </div>
                   )}
 
                   {/* Vent */}
-                  <div className={`flex items-center gap-0.5 sm:gap-1 ${isDarkMode ? 'text-cyan-400' : 'text-cyan-600'}`}>
-                    <Wind className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                    <span className="text-[10px] sm:text-xs">{Math.round(day.windSpeed)}</span>
+                  <div className={`flex items-center gap-0.5 md:gap-1 ${isDarkMode ? 'text-cyan-400' : 'text-cyan-600'}`}>
+                    <Wind className="w-3 h-3 md:w-4 md:h-4" />
+                    <span className="text-[9px] md:text-xs">{Math.round(day.windSpeed)}</span>
                   </div>
                 </div>
               </div>

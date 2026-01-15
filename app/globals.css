@@ -16,6 +16,15 @@ body {
   color: #ffffff;
   height: 100%;
   width: 100%;
+  touch-action: pan-y;
+}
+
+/* Amélioration du scroll sur mobile */
+@media (max-width: 767px) {
+  body {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+  }
 }
 
 #__next {

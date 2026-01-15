@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import MapWrapper from '@/components/MapWrapper'
 import WeatherDisplay from '@/components/WeatherDisplay'
 import ForecastDisplay from '@/components/ForecastDisplay'
 import CitySearch from '@/components/CitySearch'
 import LanguageSelector from '@/components/LanguageSelector'
+import BottomSheet from '@/components/BottomSheet'
 import { 
   getCurrentWeather, 
   getAirQuality,
@@ -18,7 +19,7 @@ import {
   AirQualityData,
   ForecastData
 } from '@/lib/weatherService'
-import { Loader2, Maximize2, Minimize2, MapPin, Sun, Moon } from 'lucide-react'
+import { Loader2, Maximize2, Minimize2, MapPin, Sun, Moon, Target } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useDarkMode } from '@/contexts/DarkModeContext'
 
@@ -159,6 +160,15 @@ export default function Home() {
     }
   }
 
+  const handleRecenter = async () => {
+    if (selectedLocation) {
+      setFlyToLocation({ lat: selectedLocation.lat, lon: selectedLocation.lon, zoom: 12 })
+    } else {
+      // Si pas de localisation, utiliser la géolocalisation
+      await handleGeolocate()
+    }
+  }
+
   return (
     <main className={`relative w-screen h-screen ${isDarkMode ? 'bg-[#0b0e14]' : 'bg-slate-100'}`} style={{ height: '100vh', width: '100vw', position: 'relative', overflow: 'visible' }}>
       {/* Carte en arrière-plan */}
@@ -253,20 +263,38 @@ export default function Home() {
         )}
       </div>
 
-      {/* Panneaux latéraux avec les informations météo - Responsive */}
+      {/* Bottom Sheet pour mobile */}
+      {!isFullscreen && (
+        <BottomSheet isOpen={true} defaultHeight={40}>
+          <div className="space-y-3">
+            <WeatherDisplay
+              weatherData={weatherData}
+              airQualityData={airQualityData}
+              loading={loading}
+              locationName={locationName}
+            />
+            
+            {forecastData && (
+              <ForecastDisplay
+                forecastData={forecastData}
+                loading={loading}
+              />
+            )}
+          </div>
+        </BottomSheet>
+      )}
+
+      {/* Panneaux latéraux pour desktop - Responsive */}
       {!isFullscreen && (
         <div 
-          className="absolute top-16 sm:top-20 left-0 sm:left-4 right-0 sm:right-auto bottom-0 sm:bottom-auto z-[400] max-h-[calc(100vh-4.5rem)] sm:max-h-[calc(100vh-6rem)] overflow-y-auto space-y-3 sm:space-y-4 px-2 sm:px-0 pb-2 sm:pb-0" 
+          className="hidden md:block absolute top-20 left-4 z-[400] max-h-[calc(100vh-6rem)] overflow-y-auto space-y-4" 
           style={{ 
             position: 'relative', 
             zIndex: 50,
             pointerEvents: 'none', // Laisser passer les clics vers la carte
-            maxWidth: '100%',
-            // Sur mobile, les panneaux prennent toute la largeur en bas
-            // Sur desktop, ils restent à gauche avec une largeur limitée
           }}
         >
-          <div style={{ pointerEvents: 'auto' }} className="w-full sm:max-w-[420px]">
+          <div style={{ pointerEvents: 'auto' }} className="w-full max-w-[420px]">
             <WeatherDisplay
               weatherData={weatherData}
               airQualityData={airQualityData}
@@ -276,7 +304,7 @@ export default function Home() {
           </div>
           
           {forecastData && (
-            <div style={{ pointerEvents: 'auto' }} className="w-full sm:max-w-[420px]">
+            <div style={{ pointerEvents: 'auto' }} className="w-full max-w-[420px]">
               <ForecastDisplay
                 forecastData={forecastData}
                 loading={loading}
@@ -305,6 +333,17 @@ export default function Home() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Bouton flottant pour recentrer (mobile uniquement) */}
+      {!isFullscreen && selectedLocation && (
+        <button
+          onClick={handleRecenter}
+          className={`fixed bottom-24 right-4 z-[450] md:hidden ${isDarkMode ? 'glass bg-black/60' : 'bg-white/90 border border-slate-200 shadow-xl'} rounded-full p-3 backdrop-blur-md ${isDarkMode ? 'hover:bg-white/20' : 'hover:bg-slate-100'} transition-colors`}
+          aria-label="Recentrer la carte"
+        >
+          <Target className={`w-5 h-5 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
+        </button>
       )}
     </main>
   )
