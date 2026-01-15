@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Search, MapPin, Loader2 } from 'lucide-react'
+import { Search, MapPin, Loader2, X } from 'lucide-react'
 import { searchCity, GeocodingResult } from '@/lib/weatherService'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useDarkMode } from '@/contexts/DarkModeContext'
@@ -88,10 +88,36 @@ export default function CitySearch({ onCitySelect }: CitySearchProps) {
             }
           }}
           placeholder={t.searchPlaceholder}
-          className={`w-full pl-9 sm:pl-10 pr-8 sm:pr-10 py-2 sm:py-3 text-sm sm:text-base ${isDarkMode ? 'bg-white/10 border-white/20 text-white placeholder-white/50' : 'bg-white border-slate-300 text-slate-900 placeholder-slate-600 shadow-lg'} backdrop-blur-md border rounded-lg focus:outline-none focus:ring-2 ${isDarkMode ? 'focus:ring-cyan-400/50 focus:border-cyan-400/50' : 'focus:ring-cyan-500/50 focus:border-cyan-500/50'} transition-all`}
+          className={`w-full pl-9 sm:pl-10 ${query.length > 0 ? 'pr-20 sm:pr-24' : 'pr-8 sm:pr-10'} py-2 sm:py-3 text-sm sm:text-base ${isDarkMode ? 'bg-white/10 border-white/20 text-white placeholder-white/50' : 'bg-white border-slate-300 text-slate-900 placeholder-slate-600 shadow-lg'} backdrop-blur-md border rounded-lg focus:outline-none focus:ring-2 ${isDarkMode ? 'focus:ring-cyan-400/50 focus:border-cyan-400/50' : 'focus:ring-cyan-500/50 focus:border-cyan-500/50'} transition-all`}
         />
         {loading && (
           <Loader2 className={`absolute right-2.5 sm:right-3 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 ${isDarkMode ? 'text-white/60' : 'text-slate-600'} animate-spin`} />
+        )}
+        {/* Bouton pour effacer la recherche */}
+        {query.length > 0 && !loading && (
+          <button
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              setQuery('')
+              setResults([])
+              setIsOpen(false)
+              // Garder le focus sur l'input après effacement
+              const input = (searchRef.current?.querySelector('input') as HTMLInputElement)
+              if (input) {
+                input.focus()
+              }
+            }}
+            className={`absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 p-1 rounded-full transition-colors ${
+              isDarkMode 
+                ? 'text-white/60 hover:text-white hover:bg-white/10' 
+                : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
+            }`}
+            aria-label="Effacer la recherche"
+            type="button"
+          >
+            <X className="w-4 h-4" />
+          </button>
         )}
       </div>
 
