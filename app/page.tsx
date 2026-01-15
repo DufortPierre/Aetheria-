@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import MapWrapper from '@/components/MapWrapper'
 import WeatherDisplay from '@/components/WeatherDisplay'
 import ForecastDisplay from '@/components/ForecastDisplay'
