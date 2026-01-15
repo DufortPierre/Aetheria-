@@ -143,9 +143,35 @@ body {
   opacity: 1;
 }
 
-/* Masquer les contrôles Leaflet par défaut */
+/* Contrôles Leaflet - Responsive */
 .leaflet-control-zoom {
-  display: none !important;
+  /* Afficher sur mobile, masquer sur desktop */
+  display: block !important;
+}
+
+@media (min-width: 640px) {
+  .leaflet-control-zoom {
+    display: none !important;
+  }
+}
+
+/* Améliorer les contrôles de zoom pour mobile */
+.leaflet-control-zoom a {
+  width: 36px !important;
+  height: 36px !important;
+  line-height: 36px !important;
+  font-size: 20px !important;
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  border-radius: 8px !important;
+  margin: 4px !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background-color: rgba(0, 0, 0, 0.8) !important;
 }
 
 .leaflet-control-attribution {
@@ -237,4 +263,37 @@ body {
   );
   background-size: 1000px 100%;
   animation: shimmer 2s infinite;
+}
+
+/* Améliorations pour mobile */
+@media (max-width: 640px) {
+  /* Améliorer le touch target */
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Améliorer la lisibilité sur petits écrans */
+  body {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  /* Empêcher le zoom sur double-tap pour les boutons */
+  button, input, select, textarea {
+    touch-action: manipulation;
+  }
+
+  /* Améliorer le scroll sur mobile */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Améliorer les interactions tactiles */
+@media (hover: none) and (pointer: coarse) {
+  /* Styles spécifiques pour les appareils tactiles */
+  .leaflet-container {
+    touch-action: pan-x pan-y pinch-zoom;
+  }
 }

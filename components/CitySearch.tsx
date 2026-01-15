@@ -70,7 +70,7 @@ export default function CitySearch({ onCitySelect }: CitySearchProps) {
   return (
     <div ref={searchRef} className="relative w-full max-w-md">
       <div className="relative">
-        <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`} />
+        <Search className={`absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`} />
         <input
           type="text"
           value={query}
@@ -88,10 +88,10 @@ export default function CitySearch({ onCitySelect }: CitySearchProps) {
             }
           }}
           placeholder={t.searchPlaceholder}
-          className={`w-full pl-10 pr-4 py-3 ${isDarkMode ? 'bg-white/10 border-white/20 text-white placeholder-white/50' : 'bg-white border-slate-300 text-slate-900 placeholder-slate-600 shadow-lg'} backdrop-blur-md border rounded-lg focus:outline-none focus:ring-2 ${isDarkMode ? 'focus:ring-cyan-400/50 focus:border-cyan-400/50' : 'focus:ring-cyan-500/50 focus:border-cyan-500/50'} transition-all`}
+          className={`w-full pl-9 sm:pl-10 pr-8 sm:pr-10 py-2 sm:py-3 text-sm sm:text-base ${isDarkMode ? 'bg-white/10 border-white/20 text-white placeholder-white/50' : 'bg-white border-slate-300 text-slate-900 placeholder-slate-600 shadow-lg'} backdrop-blur-md border rounded-lg focus:outline-none focus:ring-2 ${isDarkMode ? 'focus:ring-cyan-400/50 focus:border-cyan-400/50' : 'focus:ring-cyan-500/50 focus:border-cyan-500/50'} transition-all`}
         />
         {loading && (
-          <Loader2 className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isDarkMode ? 'text-white/60' : 'text-slate-600'} animate-spin`} />
+          <Loader2 className={`absolute right-2.5 sm:right-3 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 ${isDarkMode ? 'text-white/60' : 'text-slate-600'} animate-spin`} />
         )}
       </div>
 
@@ -102,13 +102,13 @@ export default function CitySearch({ onCitySelect }: CitySearchProps) {
             <button
               key={city.id}
               onClick={() => handleSelect(city)}
-              className={`w-full text-left px-4 py-3 ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-slate-100'} transition-colors flex items-center gap-3`}
+              className={`w-full text-left px-3 sm:px-4 py-2 sm:py-3 ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-slate-100'} transition-colors flex items-center gap-2 sm:gap-3`}
             >
-              <MapPin className={`w-4 h-4 ${isDarkMode ? 'text-cyan-400' : 'text-cyan-600'} flex-shrink-0`} />
+              <MapPin className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isDarkMode ? 'text-cyan-400' : 'text-cyan-600'} flex-shrink-0`} />
               <div className="flex-1 min-w-0">
-                <p className={`text-sm font-medium truncate ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{city.name}</p>
+                <p className={`text-xs sm:text-sm font-medium truncate ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{city.name}</p>
                 {(city.admin1 || city.country) && (
-                  <p className={`text-xs truncate ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`}>
+                  <p className={`text-[10px] sm:text-xs truncate ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`}>
                     {city.admin1 && `${city.admin1}${city.country ? ', ' : ''}`}
                     {city.country}
                   </p>
@@ -120,8 +120,8 @@ export default function CitySearch({ onCitySelect }: CitySearchProps) {
       )}
 
       {isOpen && query.length >= 1 && !loading && results.length === 0 && (
-        <div className={`absolute top-full mt-2 w-full ${isDarkMode ? 'glass-strong bg-black/40' : 'bg-white border border-slate-200 shadow-xl'} rounded-lg p-4 backdrop-blur-md z-50`}>
-          <p className={`text-sm text-center ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`}>{t.noData}</p>
+        <div className={`absolute top-full mt-2 w-full ${isDarkMode ? 'glass-strong bg-black/40' : 'bg-white border border-slate-200 shadow-xl'} rounded-lg p-3 sm:p-4 backdrop-blur-md z-50`}>
+          <p className={`text-xs sm:text-sm text-center ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`}>{t.noData}</p>
         </div>
       )}
     </div>

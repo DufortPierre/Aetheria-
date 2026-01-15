@@ -385,14 +385,15 @@ export default function Map({ onLocationClick, selectedLocation, flyToLocation, 
         className="dark-map"
         scrollWheelZoom={true}
         dragging={true} // Activer le drag
+        touchZoom={true} // Activer le zoom tactile pour mobile
         worldCopyJump={true}
         preferCanvas={false}
         maxBounds={[[-90, -180], [90, 180]]}
         maxBoundsViscosity={1.0}
-        zoomControl={false}
+        zoomControl={true} // Activer les contrôles de zoom pour mobile
         attributionControl={false}
         doubleClickZoom={true}
-        boxZoom={true}
+        boxZoom={false} // Désactiver boxZoom sur mobile (peut causer des problèmes)
         keyboard={true}
       >
         {/* Tuiles principales - Change selon le mode */}

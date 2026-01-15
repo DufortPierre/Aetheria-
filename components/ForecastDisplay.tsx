@@ -16,12 +16,12 @@ export default function ForecastDisplay({ forecastData, loading }: ForecastDispl
 
   if (loading) {
     return (
-      <div className={`${isDarkMode ? 'glass-strong bg-black/40' : 'bg-white/80 border border-slate-200 shadow-xl'} rounded-2xl p-6 w-full max-w-md ${isDarkMode ? 'backdrop-blur-md' : 'backdrop-blur-lg'}`}>
-        <div className="animate-pulse space-y-3">
-          <div className="h-6 bg-white/10 rounded w-1/3"></div>
+      <div className={`${isDarkMode ? 'glass-strong bg-black/40' : 'bg-white/80 border border-slate-200 shadow-xl'} rounded-xl sm:rounded-2xl p-4 sm:p-6 w-full max-w-md ${isDarkMode ? 'backdrop-blur-md' : 'backdrop-blur-lg'}`}>
+        <div className="animate-pulse space-y-2 sm:space-y-3">
+          <div className="h-5 sm:h-6 bg-white/10 rounded w-1/3"></div>
           <div className="space-y-2">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-16 bg-white/10 rounded"></div>
+              <div key={i} className="h-12 sm:h-16 bg-white/10 rounded"></div>
             ))}
           </div>
         </div>
@@ -47,13 +47,13 @@ export default function ForecastDisplay({ forecastData, loading }: ForecastDispl
   }))
 
   return (
-    <div className={`${isDarkMode ? 'glass-strong bg-black/40' : 'bg-white/80 border border-slate-200 shadow-xl'} rounded-2xl p-6 w-full max-w-md ${isDarkMode ? 'backdrop-blur-md' : 'backdrop-blur-lg'}`}>
-      <div className="flex items-center gap-2 mb-4">
-        <Calendar className={`w-5 h-5 ${isDarkMode ? 'text-cyan-400' : 'text-cyan-600'}`} />
-        <h3 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.forecast7Days}</h3>
+    <div className={`${isDarkMode ? 'glass-strong bg-black/40' : 'bg-white/80 border border-slate-200 shadow-xl'} rounded-xl sm:rounded-2xl p-4 sm:p-6 w-full max-w-md ${isDarkMode ? 'backdrop-blur-md' : 'backdrop-blur-lg'}`}>
+      <div className="flex items-center gap-2 mb-3 sm:mb-4">
+        <Calendar className={`w-4 h-4 sm:w-5 sm:h-5 ${isDarkMode ? 'text-cyan-400' : 'text-cyan-600'}`} />
+        <h3 className={`text-lg sm:text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{t.forecast7Days}</h3>
       </div>
 
-      <div className="space-y-3 max-h-96 overflow-y-auto">
+      <div className="space-y-2 sm:space-y-3 max-h-80 sm:max-h-96 overflow-y-auto">
         {forecastDays.map((day, index) => {
           const weatherInfo = WEATHER_CODES[day.weatherCode] || {
             label: 'Inconnu',
@@ -72,7 +72,7 @@ export default function ForecastDisplay({ forecastData, loading }: ForecastDispl
           return (
             <div
               key={day.date.toISOString()}
-              className={`p-3 rounded-lg border ${
+              className={`p-2 sm:p-3 rounded-lg border ${
                 isToday 
                   ? isDarkMode 
                     ? 'border-cyan-500/30 bg-cyan-500/10' 
@@ -82,37 +82,37 @@ export default function ForecastDisplay({ forecastData, loading }: ForecastDispl
                     : 'bg-slate-100/50 border-slate-200'
               }`}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="text-2xl flex-shrink-0">{weatherInfo.emoji}</div>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                  <div className="text-xl sm:text-2xl flex-shrink-0">{weatherInfo.emoji}</div>
                   <div className="flex-1 min-w-0">
-                    <p className={`font-medium text-sm ${isToday ? 'text-cyan-300' : isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                    <p className={`font-medium text-xs sm:text-sm ${isToday ? 'text-cyan-300' : isDarkMode ? 'text-white' : 'text-slate-900'}`}>
                       {dayName}
                     </p>
-                    <p className={`text-xs truncate ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`}>{weatherInfo.label}</p>
+                    <p className={`text-[10px] sm:text-xs truncate ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`}>{weatherInfo.label}</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 flex-shrink-0">
+                <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
                   {/* Températures */}
                   <div className="text-right">
-                    <p className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                    <p className={`text-xs sm:text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
                       {Math.round(day.tempMax)}°/{Math.round(day.tempMin)}°
                     </p>
                   </div>
 
                   {/* Précipitations */}
                   {day.precipitation > 0 && (
-                    <div className="flex items-center gap-1 text-blue-400">
-                      <CloudRain className="w-4 h-4" />
-                      <span className="text-xs">{day.precipitation.toFixed(1)}mm</span>
+                    <div className="flex items-center gap-0.5 sm:gap-1 text-blue-400">
+                      <CloudRain className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      <span className="text-[10px] sm:text-xs">{day.precipitation.toFixed(1)}mm</span>
                     </div>
                   )}
 
                   {/* Vent */}
-                  <div className={`flex items-center gap-1 ${isDarkMode ? 'text-cyan-400' : 'text-cyan-600'}`}>
-                    <Wind className="w-4 h-4" />
-                    <span className="text-xs">{Math.round(day.windSpeed)}</span>
+                  <div className={`flex items-center gap-0.5 sm:gap-1 ${isDarkMode ? 'text-cyan-400' : 'text-cyan-600'}`}>
+                    <Wind className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span className="text-[10px] sm:text-xs">{Math.round(day.windSpeed)}</span>
                   </div>
                 </div>
               </div>
