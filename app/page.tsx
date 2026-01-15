@@ -195,73 +195,84 @@ export default function Home() {
         />
       </div>
 
-      {/* Barre de recherche en haut - Responsive */}
+      {/* Barre de recherche en haut - Mobile First */}
       {!isFullscreen && (
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[400] w-[calc(100%-2rem)] max-w-md sm:max-w-lg md:max-w-md px-4 sm:px-0">
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[400] w-[calc(100vw-2rem)] md:w-full md:max-w-md md:left-1/2 md:transform md:-translate-x-1/2">
           <CitySearch onCitySelect={(lat, lon, name) => handleCitySelect(lat, lon, name, true)} />
         </div>
       )}
 
-      {/* Titre de l'application et contrôles - Responsive */}
-      <div className="absolute top-4 right-2 sm:right-4 z-[400] flex items-center gap-1.5 sm:gap-3 flex-wrap justify-end max-w-[calc(100%-1rem)]">
-        {!isFullscreen && (
-          <div className="hidden sm:block">
+      {/* GROUPE 1 : Paramètres (Langue, Thème) - En haut à droite, sous la barre de recherche sur mobile */}
+      {!isFullscreen && (
+        <div className="absolute top-20 md:top-4 right-2 md:right-4 z-[400] flex items-center gap-2 md:gap-3">
+          {/* Sélecteur de langue */}
+          <div className="md:hidden">
             <LanguageSelector />
           </div>
-        )}
-        
-        {/* Bouton bascule jour/nuit */}
-        <button
-          onClick={toggleDarkMode}
-          className={`${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 backdrop-blur-md flex items-center gap-1 sm:gap-2 ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-slate-100'} transition-colors`}
-          aria-label={isDarkMode ? 'Mode jour' : 'Mode nuit'}
-        >
-          {isDarkMode ? (
-            <Sun className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
-          ) : (
-            <Moon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
-          )}
-        </button>
-        
-        {/* Bouton géolocalisation */}
-        <button
-          onClick={handleGeolocate}
-          disabled={isGeolocating}
-          className={`${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 backdrop-blur-md flex items-center gap-1 sm:gap-2 ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-slate-100'} transition-colors disabled:opacity-50`}
-          aria-label="Géolocalisation"
-        >
-          <MapPin className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isGeolocating ? 'animate-pulse' : ''} ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
-        </button>
+          <div className="hidden md:block">
+            <LanguageSelector />
+          </div>
+          
+          {/* Bouton bascule jour/nuit */}
+          <button
+            onClick={toggleDarkMode}
+            className={`${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} rounded-lg px-2 md:px-3 py-1.5 md:py-2 backdrop-blur-md flex items-center gap-1 md:gap-2 ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-slate-100'} transition-colors`}
+            aria-label={isDarkMode ? 'Mode jour' : 'Mode nuit'}
+          >
+            {isDarkMode ? (
+              <Sun className={`w-4 h-4 md:w-5 md:h-5 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
+            ) : (
+              <Moon className={`w-4 h-4 md:w-5 md:h-5 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
+            )}
+          </button>
 
-        {/* Bouton mode plein écran */}
-        <button
-          onClick={() => setIsFullscreen(!isFullscreen)}
-          className={`${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 backdrop-blur-md flex items-center gap-1 sm:gap-2 ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-slate-100'} transition-colors`}
-          aria-label={isFullscreen ? 'Quitter le mode plein écran' : 'Mode plein écran'}
-        >
-          {isFullscreen ? (
-            <Minimize2 className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
-          ) : (
-            <Maximize2 className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
-          )}
-        </button>
+          {/* Titre - Desktop uniquement */}
+          <div className={`${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} rounded-lg px-4 md:px-6 py-1.5 md:py-3 backdrop-blur-md hidden md:block`}>
+            <h1 className={`text-xl md:text-2xl font-bold ${isDarkMode ? 'bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent' : 'bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent'}`}>
+              Aetheria
+            </h1>
+          </div>
+        </div>
+      )}
 
-        {!isFullscreen && (
-          <>
-            {/* Sélecteur de langue mobile (visible uniquement sur mobile) */}
-            <div className="sm:hidden">
-              <LanguageSelector />
-            </div>
-            
-            {/* Titre - Responsive */}
-            <div className={`${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} rounded-lg px-3 sm:px-6 py-1.5 sm:py-3 backdrop-blur-md hidden sm:block`}>
-              <h1 className={`text-lg sm:text-2xl font-bold ${isDarkMode ? 'bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent' : 'bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent'}`}>
-                Aetheria
-              </h1>
-            </div>
-          </>
-        )}
-      </div>
+      {/* GROUPE 2 : Outils (Géolocalisation, Fullscreen) - En bas à droite, style FAB sur mobile */}
+      {!isFullscreen && (
+        <div className="absolute bottom-32 md:bottom-auto md:top-4 md:right-4 right-4 z-[450] flex flex-col md:flex-row gap-2 md:gap-3">
+          {/* Bouton géolocalisation */}
+          <button
+            onClick={handleGeolocate}
+            disabled={isGeolocating}
+            className={`rounded-full md:rounded-lg w-12 h-12 md:w-auto md:h-auto md:px-3 md:py-2 ${isDarkMode ? 'glass bg-black/60 shadow-xl' : 'bg-white/95 border border-slate-200 shadow-xl'} backdrop-blur-md flex items-center justify-center ${isDarkMode ? 'hover:bg-white/20' : 'hover:bg-slate-100'} transition-colors disabled:opacity-50`}
+            aria-label="Géolocalisation"
+          >
+            <MapPin className={`w-5 h-5 md:w-4 md:h-4 ${isGeolocating ? 'animate-pulse' : ''} ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
+          </button>
+
+          {/* Bouton recentrer (mobile uniquement) */}
+          {selectedLocation && (
+            <button
+              onClick={handleRecenter}
+              className={`rounded-full md:hidden w-12 h-12 ${isDarkMode ? 'glass bg-black/60 shadow-xl' : 'bg-white/95 border border-slate-200 shadow-xl'} backdrop-blur-md flex items-center justify-center ${isDarkMode ? 'hover:bg-white/20' : 'hover:bg-slate-100'} transition-colors`}
+              aria-label="Recentrer la carte"
+            >
+              <Target className={`w-5 h-5 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
+            </button>
+          )}
+
+          {/* Bouton mode plein écran */}
+          <button
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            className={`rounded-full md:rounded-lg w-12 h-12 md:w-auto md:h-auto md:px-3 md:py-2 ${isDarkMode ? 'glass bg-black/60 shadow-xl' : 'bg-white/95 border border-slate-200 shadow-xl'} backdrop-blur-md flex items-center justify-center ${isDarkMode ? 'hover:bg-white/20' : 'hover:bg-slate-100'} transition-colors`}
+            aria-label={isFullscreen ? 'Quitter le mode plein écran' : 'Mode plein écran'}
+          >
+            {isFullscreen ? (
+              <Minimize2 className={`w-5 h-5 md:w-4 md:h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
+            ) : (
+              <Maximize2 className={`w-5 h-5 md:w-4 md:h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
+            )}
+          </button>
+        </div>
+      )}
 
       {/* Bottom Sheet pour mobile */}
       {!isFullscreen && (
@@ -335,16 +346,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Bouton flottant pour recentrer (mobile uniquement) */}
-      {!isFullscreen && selectedLocation && (
-        <button
-          onClick={handleRecenter}
-          className={`fixed bottom-24 right-4 z-[450] md:hidden ${isDarkMode ? 'glass bg-black/60' : 'bg-white/90 border border-slate-200 shadow-xl'} rounded-full p-3 backdrop-blur-md ${isDarkMode ? 'hover:bg-white/20' : 'hover:bg-slate-100'} transition-colors`}
-          aria-label="Recentrer la carte"
-        >
-          <Target className={`w-5 h-5 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
-        </button>
-      )}
     </main>
   )
 }
