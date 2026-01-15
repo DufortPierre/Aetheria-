@@ -394,32 +394,6 @@ export default function Map({ onLocationClick, selectedLocation, flyToLocation, 
         doubleClickZoom={true}
         boxZoom={true}
         keyboard={true}
-        whenReady={(map) => {
-          // Si une carte existe déjà globalement et que ce n'est pas celle-ci, la détruire
-          if (globalMapInstance && globalMapInstance !== map.target) {
-            try {
-              // Vérifier que l'ancienne instance existe encore avant de la supprimer
-              if (globalMapInstance.getContainer() && globalMapInstance.getContainer().parentNode) {
-                globalMapInstance.remove()
-              }
-            } catch (e) {
-              // Ignorer les erreurs silencieusement
-            }
-          }
-          globalMapInstance = map.target
-          mapRef.current = map.target
-          
-          // Forcer le redimensionnement de la carte une seule fois après un court délai
-          setTimeout(() => {
-            try {
-              if (map.target && map.target.getContainer() && map.target.getContainer().offsetHeight > 0) {
-                map.target.invalidateSize()
-              }
-            } catch (e) {
-              // Ignorer les erreurs silencieusement
-            }
-          }, 300)
-        }}
       >
         {/* Tuiles principales - Change selon le mode */}
         <TileLayer
