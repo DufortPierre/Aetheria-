@@ -330,7 +330,19 @@ function FlyToLocation({ location }: { location: { lat: number; lon: number; zoo
 // Variable globale pour tracker l'instance de carte
 let globalMapInstance: LeafletMap | null = null
 
-export default function Map({ onLocationClick, selectedLocation, flyToLocation, isDarkMode = true }: MapProps) {
+export default function Map({ 
+  onLocationClick, 
+  selectedLocation, 
+  flyToLocation, 
+  isDarkMode = true,
+  onGeolocate,
+  onRecenter,
+  onToggleFullscreen,
+  isFullscreen = false,
+  isGeolocating = false,
+  showRecenter = false,
+  showActionStack = false
+}: MapProps) {
   const { language } = useLanguage()
   const [isClient, setIsClient] = useState(false)
   const mapRef = useRef<LeafletMap | null>(null)
