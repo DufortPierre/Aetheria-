@@ -33,7 +33,7 @@ export interface Translations {
   rain: string
   snow: string
   light: string
-  moderate: string
+  moderateIntensity: string
   heavy: string
   
   // Phénomènes
@@ -85,7 +85,7 @@ export const translations: Record<Language, Translations> = {
     rain: 'Pluie',
     snow: 'Neige',
     light: 'Faible',
-    moderate: 'Modérée',
+    moderateIntensity: 'Modérée',
     heavy: 'Forte',
     fog: 'Brouillard',
     hail: 'Grêle',
@@ -125,7 +125,7 @@ export const translations: Record<Language, Translations> = {
     rain: 'Rain',
     snow: 'Snow',
     light: 'Light',
-    moderate: 'Moderate',
+    moderateIntensity: 'Moderate',
     heavy: 'Heavy',
     fog: 'Fog',
     hail: 'Hail',
@@ -165,7 +165,7 @@ export const translations: Record<Language, Translations> = {
     rain: 'Lluvia',
     snow: 'Nieve',
     light: 'Ligera',
-    moderate: 'Moderada',
+    moderateIntensity: 'Moderada',
     heavy: 'Fuerte',
     fog: 'Niebla',
     hail: 'Granizo',

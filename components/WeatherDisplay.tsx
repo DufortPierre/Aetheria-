@@ -116,12 +116,12 @@ export default function WeatherDisplay({
         return t.dangerous
       }
 
-  // Traduire l'intensité des précipitations
-  const getPrecipitationIntensityTranslated = (intensity: string) => {
-    if (intensity === 'Faible' || intensity === 'Light' || intensity === 'Ligera') return t.light
-    if (intensity === 'Modérée' || intensity === 'Moderate' || intensity === 'Moderada') return t.moderate
-    return t.heavy
-  }
+      // Traduire l'intensité des précipitations
+      const getPrecipitationIntensityTranslated = (intensity: string) => {
+        if (intensity === 'Faible' || intensity === 'Light' || intensity === 'Ligera') return t.light
+        if (intensity === 'Modérée' || intensity === 'Moderate' || intensity === 'Moderada') return t.moderateIntensity
+        return t.heavy
+      }
 
   return (
     <div className={`${isDarkMode ? 'glass-strong bg-black/40' : 'bg-white/80 border border-slate-200 shadow-xl'} rounded-2xl p-6 w-full max-w-md ${isDarkMode ? 'backdrop-blur-md' : 'backdrop-blur-lg'} space-y-4`}>
