@@ -1,17 +1,21 @@
 'use client'
 
-import { Maximize2, Minimize2 } from 'lucide-react'
+import { Maximize2, Minimize2, MapPin } from 'lucide-react'
 import { useDarkMode } from '@/contexts/DarkModeContext'
 
 interface MapActionStackProps {
+  onGeolocate?: () => void
   onToggleFullscreen?: () => void
   isFullscreen?: boolean
+  isGeolocating?: boolean
   isMobile?: boolean
 }
 
 export function MapActionStack({
+  onGeolocate,
   onToggleFullscreen,
   isFullscreen = false,
+  isGeolocating = false,
   isMobile = false,
 }: MapActionStackProps) {
   const { isDarkMode } = useDarkMode()
@@ -25,19 +29,33 @@ export function MapActionStack({
   }
 
   return (
-    <div className="fixed bottom-32 right-4 z-[9999] flex flex-col gap-2 pointer-events-auto md:hidden">
-      {/* Bouton Plein Écran uniquement (essentiel pour quitter le mode plein écran) */}
-      <button
-        onClick={onToggleFullscreen}
-        className={buttonClass}
-        aria-label={isFullscreen ? 'Quitter le mode plein écran' : 'Mode plein écran'}
-      >
-        {isFullscreen ? (
-          <Minimize2 className={iconClass} />
-        ) : (
-          <Maximize2 className={iconClass} />
-        )}
-      </button>
+    <div className="fixed bottom-[180px] right-4 z-[1000] flex flex-row gap-4 pointer-events-auto md:hidden">
+      {/* Bouton Géolocalisation */}
+      {onGeolocate && (
+        <button
+          onClick={onGeolocate}
+          disabled={isGeolocating}
+          className={`${buttonClass} ${isGeolocating ? 'opacity-50' : ''}`}
+          aria-label="Géolocalisation"
+        >
+          <MapPin className={`${iconClass} ${isGeolocating ? 'animate-pulse' : ''}`} />
+        </button>
+      )}
+
+      {/* Bouton Plein Écran */}
+      {onToggleFullscreen && (
+        <button
+          onClick={onToggleFullscreen}
+          className={buttonClass}
+          aria-label={isFullscreen ? 'Quitter le mode plein écran' : 'Mode plein écran'}
+        >
+          {isFullscreen ? (
+            <Minimize2 className={iconClass} />
+          ) : (
+            <Maximize2 className={iconClass} />
+          )}
+        </button>
+      )}
     </div>
   )
 }

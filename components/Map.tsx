@@ -443,8 +443,10 @@ export default function Map({
 
         {/* Action Stack pour mobile (toujours visible, même en plein écran) */}
         <MapActionStack
+          onGeolocate={onGeolocate}
           onToggleFullscreen={onToggleFullscreen}
           isFullscreen={isFullscreen}
+          isGeolocating={isGeolocating}
           isMobile={true}
         />
 
