@@ -223,58 +223,54 @@ export default function Home() {
         </button>
       </div>
 
-      {/* HEADER DESKTOP - Une seule ligne avec tout aligné */}
-      <div className="hidden md:flex absolute top-0 left-0 w-full px-6 py-4 justify-between items-center z-[9999] pointer-events-none">
-        {/* Barre de recherche à gauche */}
-        <div className="pointer-events-auto flex-shrink-0 h-10 flex items-center">
-          <div className="w-full max-w-md">
-            <CitySearch onCitySelect={(lat, lon, name) => handleCitySelect(lat, lon, name, true)} />
-          </div>
+      {/* HEADER DESKTOP - Barre de recherche centrée, boutons à droite */}
+      {/* Barre de recherche centrée au milieu */}
+      <div className="hidden md:block absolute top-6 left-1/2 transform -translate-x-1/2 z-[9999] pointer-events-auto w-full max-w-md">
+        <CitySearch onCitySelect={(lat, lon, name) => handleCitySelect(lat, lon, name, true)} />
+      </div>
+
+      {/* Contrôles et Logo à droite */}
+      <div className="hidden md:flex absolute top-6 right-6 z-[9999] pointer-events-auto items-center gap-4">
+        {/* Les 4 boutons d'action */}
+        <div className="h-10 flex items-center">
+          <LanguageSelector />
         </div>
+        <button
+          onClick={toggleDarkMode}
+          className={`h-10 ${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} rounded-lg px-3 backdrop-blur-md flex items-center justify-center gap-2 ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-slate-100'} transition-colors`}
+          aria-label={isDarkMode ? 'Mode jour' : 'Mode nuit'}
+        >
+          {isDarkMode ? (
+            <Sun className={`w-4 h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
+          ) : (
+            <Moon className={`w-4 h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
+          )}
+        </button>
+        <button
+          onClick={handleGeolocate}
+          disabled={isGeolocating}
+          className={`h-10 rounded-lg px-3 ${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} backdrop-blur-md flex items-center justify-center gap-2 ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-slate-100'} transition-colors disabled:opacity-50`}
+          aria-label="Géolocalisation"
+        >
+          <MapPin className={`w-4 h-4 ${isGeolocating ? 'animate-pulse' : ''} ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
+        </button>
+        <button
+          onClick={() => setIsFullscreen(!isFullscreen)}
+          className={`h-10 rounded-lg px-3 ${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} backdrop-blur-md flex items-center justify-center gap-2 ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-slate-100'} transition-colors`}
+          aria-label={isFullscreen ? 'Quitter le mode plein écran' : 'Mode plein écran'}
+        >
+          {isFullscreen ? (
+            <Minimize2 className={`w-4 h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
+          ) : (
+            <Maximize2 className={`w-4 h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
+          )}
+        </button>
 
-        {/* Contrôles et Logo à droite */}
-        <div className="pointer-events-auto flex items-center gap-4">
-          {/* Les 4 boutons d'action */}
-          <div className="h-10 flex items-center">
-            <LanguageSelector />
-          </div>
-          <button
-            onClick={toggleDarkMode}
-            className={`h-10 ${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} rounded-lg px-3 backdrop-blur-md flex items-center justify-center gap-2 ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-slate-100'} transition-colors`}
-            aria-label={isDarkMode ? 'Mode jour' : 'Mode nuit'}
-          >
-            {isDarkMode ? (
-              <Sun className={`w-4 h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
-            ) : (
-              <Moon className={`w-4 h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
-            )}
-          </button>
-          <button
-            onClick={handleGeolocate}
-            disabled={isGeolocating}
-            className={`h-10 rounded-lg px-3 ${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} backdrop-blur-md flex items-center justify-center gap-2 ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-slate-100'} transition-colors disabled:opacity-50`}
-            aria-label="Géolocalisation"
-          >
-            <MapPin className={`w-4 h-4 ${isGeolocating ? 'animate-pulse' : ''} ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
-          </button>
-          <button
-            onClick={() => setIsFullscreen(!isFullscreen)}
-            className={`h-10 rounded-lg px-3 ${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} backdrop-blur-md flex items-center justify-center gap-2 ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-slate-100'} transition-colors`}
-            aria-label={isFullscreen ? 'Quitter le mode plein écran' : 'Mode plein écran'}
-          >
-            {isFullscreen ? (
-              <Minimize2 className={`w-4 h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
-            ) : (
-              <Maximize2 className={`w-4 h-4 ${isDarkMode ? 'text-white' : 'text-slate-700'}`} />
-            )}
-          </button>
-
-          {/* Logo "Aetheria" tout à droite */}
-          <div className={`h-10 flex items-center justify-center ${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} rounded-lg px-6 backdrop-blur-md`}>
-            <h1 className={`text-2xl font-bold tracking-wider whitespace-nowrap ${isDarkMode ? 'bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent' : 'bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent'}`}>
-              Aetheria
-            </h1>
-          </div>
+        {/* Logo "Aetheria" tout à droite */}
+        <div className={`h-10 flex items-center justify-center ${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} rounded-lg px-6 backdrop-blur-md`}>
+          <h1 className={`text-2xl font-bold tracking-wider whitespace-nowrap ${isDarkMode ? 'bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent' : 'bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent'}`}>
+            Aetheria
+          </h1>
         </div>
       </div>
 
