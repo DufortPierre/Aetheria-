@@ -139,12 +139,26 @@ function RemoveControls() {
   return null
 }
 
-// Composant pour forcer le redimensionnement de la carte
-function MapResizer() {
+// Composant pour initialiser la carte et gérer les instances globales
+function MapInitializer() {
   const map = useMap()
 
   useEffect(() => {
-    // Forcer le redimensionnement au montage pour éviter les tuiles grises
+    // Si une carte existe déjà globalement et que ce n'est pas celle-ci, la détruire
+    if (globalMapInstance && globalMapInstance !== map) {
+      try {
+        // Vérifier que l'ancienne instance existe encore avant de la supprimer
+        const oldContainer = globalMapInstance.getContainer()
+        if (oldContainer && oldContainer.parentNode) {
+          globalMapInstance.remove()
+        }
+      } catch (e) {
+        // Ignorer les erreurs silencieusement
+      }
+    }
+    globalMapInstance = map
+    
+    // Forcer le redimensionnement de la carte une seule fois après un court délai
     const timer1 = setTimeout(() => {
       try {
         if (map && map.getContainer() && map.getContainer().offsetHeight > 0) {
@@ -420,7 +434,7 @@ export default function Map({ onLocationClick, selectedLocation, flyToLocation, 
         />
         
         <RemoveControls />
-        <MapResizer />
+        <MapInitializer />
         <MapClickHandler onClick={onLocationClick} />
         <FlyToLocation location={flyToLocation} />
 
