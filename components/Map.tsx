@@ -410,7 +410,7 @@ export default function Map({ onLocationClick, selectedLocation, flyToLocation, 
         <RemoveControls />
         <MapInitializer />
         <MapClickHandler onClick={onLocationClick} />
-        <FlyToLocation location={flyToLocation} />
+        <FlyToLocation location={flyToLocation || null} />
 
         {/* Forcer la mise à jour de la vue quand selectedLocation change */}
         {selectedLocation && (
