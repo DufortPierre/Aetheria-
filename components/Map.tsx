@@ -6,7 +6,6 @@ import type { Map as LeafletMap } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { useLanguage } from '@/contexts/LanguageContext'
 import type { Language } from '@/lib/i18n'
-import { MapActionStack } from './MapActionStack'
 
 
 interface MapProps {
@@ -20,7 +19,6 @@ interface MapProps {
   isFullscreen?: boolean
   isGeolocating?: boolean
   showRecenter?: boolean
-  showActionStack?: boolean
 }
 
 // Composant pour supprimer définitivement les contrôles inutiles (boussole, rotation, etc.)
@@ -340,8 +338,7 @@ export default function Map({
   onToggleFullscreen,
   isFullscreen = false,
   isGeolocating = false,
-  showRecenter = false,
-  showActionStack = false
+  showRecenter = false
 }: MapProps) {
   const { language } = useLanguage()
   const [isClient, setIsClient] = useState(false)
@@ -442,13 +439,6 @@ export default function Map({
         <ClickPoint selectedLocation={selectedLocation} isDarkMode={isDarkMode} />
 
         {/* Action Stack pour mobile (toujours visible, même en plein écran) */}
-        <MapActionStack
-          onGeolocate={onGeolocate}
-          onToggleFullscreen={onToggleFullscreen}
-          isFullscreen={isFullscreen}
-          isGeolocating={isGeolocating}
-          isMobile={true}
-        />
 
       </MapContainer>
     </div>

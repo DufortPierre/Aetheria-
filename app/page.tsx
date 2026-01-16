@@ -199,7 +199,6 @@ export default function Home() {
           isFullscreen={isFullscreen}
           isGeolocating={isGeolocating}
           showRecenter={!!selectedLocation}
-          showActionStack={true} // Toujours true, l'ActionStack gère elle-même l'affichage mobile
         />
       </div>
 
@@ -291,7 +290,6 @@ export default function Home() {
       </div>
 
       {/* ACTION STACK - Mobile uniquement (rendue dans Map pour accéder à useMap) */}
-      {/* L'ActionStack est rendue dans Map.tsx avec showActionStack */}
 
       {/* PANNEAUX LATÉRAUX - Desktop uniquement (masqués en plein écran) */}
       <div 

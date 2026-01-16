@@ -25,7 +25,6 @@ interface MapWrapperProps {
   isFullscreen?: boolean
   isGeolocating?: boolean
   showRecenter?: boolean
-  showActionStack?: boolean
 }
 
 export default function MapWrapper({ 
@@ -38,8 +37,7 @@ export default function MapWrapper({
   onToggleFullscreen,
   isFullscreen = false,
   isGeolocating = false,
-  showRecenter = false,
-  showActionStack = false
+  showRecenter = false
 }: MapWrapperProps) {
   const { t } = useLanguage()
   const { isDarkMode: isDarkModeContext } = useDarkMode()
@@ -71,7 +69,6 @@ export default function MapWrapper({
         isFullscreen={isFullscreen}
         isGeolocating={isGeolocating}
         showRecenter={showRecenter}
-          showActionStack={false} // L'ActionStack sera rendue séparément pour mobile uniquement
       />
       {/* Instructions traduites */}
       <div className="absolute bottom-4 left-4 z-[1000] pointer-events-none">
