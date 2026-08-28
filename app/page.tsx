@@ -4,38 +4,60 @@ import { useState, useEffect } from 'react'
 import MapWrapper from '@/components/MapWrapper'
 import WeatherDisplay from '@/components/WeatherDisplay'
 import ForecastDisplay from '@/components/ForecastDisplay'
+import HourlyForecast from '@/components/HourlyForecast'
 import CitySearch from '@/components/CitySearch'
 import LanguageSelector from '@/components/LanguageSelector'
 import BottomSheet from '@/components/BottomSheet'
 import MobileActionBar from '@/components/MobileActionBar'
-import { 
-  getCurrentWeather, 
+import MobileTopControls from '@/components/MobileTopControls'
+import FavoritesBar from '@/components/FavoritesBar'
+import ErrorBanner from '@/components/ErrorBanner'
+import InstallPrompt from '@/components/InstallPrompt'
+import {
+  getCurrentWeather,
   getAirQuality,
   getForecast,
+  getHourlyForecast,
   reverseGeocode,
   saveLastLocation,
   getLastLocation,
   getUserLocation,
-  WeatherData, 
+  getFavorites,
+  toggleFavorite,
+  favoriteId,
+  WeatherData,
   AirQualityData,
-  ForecastData
+  ForecastData,
+  HourlyForecastData,
+  FavoriteCity,
 } from '@/lib/weatherService'
 import { Loader2, Maximize2, Minimize2, MapPin, Sun, Moon } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useDarkMode } from '@/contexts/DarkModeContext'
+import { useUnits } from '@/contexts/UnitsContext'
 
 export default function Home() {
   const { language, t } = useLanguage()
   const { isDarkMode, toggleDarkMode } = useDarkMode()
+  const { temperatureUnit, toggleUnits } = useUnits()
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lon: number } | null>(null)
   const [locationName, setLocationName] = useState<string>('')
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null)
   const [airQualityData, setAirQualityData] = useState<AirQualityData | null>(null)
   const [forecastData, setForecastData] = useState<ForecastData | null>(null)
+  const [hourlyData, setHourlyData] = useState<HourlyForecastData | null>(null)
   const [loading, setLoading] = useState(false)
   const [flyToLocation, setFlyToLocation] = useState<{ lat: number; lon: number; zoom?: number } | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isGeolocating, setIsGeolocating] = useState(false)
+  const [sheetHeight, setSheetHeight] = useState(35)
+  const [favorites, setFavorites] = useState<FavoriteCity[]>([])
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  // Charger les favoris sauvegardés au démarrage
+  useEffect(() => {
+    setFavorites(getFavorites())
+  }, [])
 
   // Géolocalisation automatique au démarrage
   useEffect(() => {
@@ -47,7 +69,8 @@ export default function Home() {
         return
       }
 
-      // Sinon, essayer la géolocalisation
+      // Sinon, essayer la géolocalisation (silencieuse : pas d'erreur affichée si
+      // refusée, l'utilisateur n'a encore rien demandé explicitement)
       setIsGeolocating(true)
       const userLocation = await getUserLocation()
       setIsGeolocating(false)
@@ -95,15 +118,18 @@ export default function Home() {
       setLocationName(cityName)
 
       // Charger les données en parallèle avec la langue
-      const [weather, airQuality, forecast] = await Promise.all([
+      const [weather, airQuality, forecast, hourly] = await Promise.all([
         getCurrentWeather(lat, lon, language),
         getAirQuality(lat, lon),
         getForecast(lat, lon, 7, language),
+        getHourlyForecast(lat, lon, language),
       ])
 
       setWeatherData(weather)
       setAirQualityData(airQuality)
       setForecastData(forecast)
+      setHourlyData(hourly)
+      setErrorMessage(null)
 
       // Sauvegarder la dernière localisation
       if (updateLocation) {
@@ -111,6 +137,7 @@ export default function Home() {
       }
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error)
+      setErrorMessage(t.errorWeatherLoad)
     } finally {
       if (showLoading) {
         setLoading(false)
@@ -121,7 +148,7 @@ export default function Home() {
   const handleCitySelect = async (lat: number, lon: number, name: string, shouldFly = true) => {
     setLocationName(name)
     setSelectedLocation({ lat, lon })
-    
+
     // Faire voler la carte vers la ville sélectionnée
     if (shouldFly) {
       setFlyToLocation({ lat, lon, zoom: 10 })
@@ -131,20 +158,24 @@ export default function Home() {
 
     try {
       // Charger les données en parallèle avec la langue
-      const [weather, airQuality, forecast] = await Promise.all([
+      const [weather, airQuality, forecast, hourly] = await Promise.all([
         getCurrentWeather(lat, lon, language),
         getAirQuality(lat, lon),
         getForecast(lat, lon, 7, language),
+        getHourlyForecast(lat, lon, language),
       ])
 
       setWeatherData(weather)
       setAirQualityData(airQuality)
       setForecastData(forecast)
+      setHourlyData(hourly)
+      setErrorMessage(null)
 
       // Sauvegarder la dernière localisation
       saveLastLocation(lat, lon, name)
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error)
+      setErrorMessage(t.errorWeatherLoad)
     } finally {
       setLoading(false)
     }
@@ -158,6 +189,19 @@ export default function Home() {
     if (userLocation) {
       await handleLocationClick(userLocation.lat, userLocation.lon, true)
       setFlyToLocation({ lat: userLocation.lat, lon: userLocation.lon, zoom: 12 })
+    } else {
+      // Ici l'utilisateur a explicitement demandé sa position : contrairement à la
+      // tentative silencieuse au démarrage, on affiche l'échec.
+      setErrorMessage(t.errorGeolocationDenied)
+    }
+  }
+
+  const handleRetry = () => {
+    setErrorMessage(null)
+    if (selectedLocation) {
+      handleLocationClick(selectedLocation.lat, selectedLocation.lon)
+    } else {
+      handleGeolocate()
     }
   }
 
@@ -170,18 +214,32 @@ export default function Home() {
     }
   }
 
+  const handleToggleFavorite = () => {
+    if (!selectedLocation) return
+    const updated = toggleFavorite(selectedLocation.lat, selectedLocation.lon, locationName)
+    setFavorites(updated)
+  }
+
+  const currentIsFavorite = selectedLocation
+    ? favorites.some((f) => f.id === favoriteId(selectedLocation.lat, selectedLocation.lon))
+    : false
+
+  const todaySunrise = forecastData?.daily?.sunrise?.[0]
+  const todaySunset = forecastData?.daily?.sunset?.[0]
+  const todayUvIndex = forecastData?.daily?.uv_index_max?.[0]
+
   return (
     <main className={`relative w-screen h-screen ${isDarkMode ? 'bg-[#0b0e14]' : 'bg-slate-100'}`} style={{ height: '100vh', width: '100vw', position: 'relative', overflow: 'visible' }}>
       {/* Carte en arrière-plan */}
-      <div 
-        className="absolute inset-0 w-full h-full" 
-        style={{ 
-          height: '100vh', 
-          width: '100vw', 
-          position: 'absolute', 
-          top: 0, 
-          left: 0, 
-          right: 0, 
+      <div
+        className="absolute inset-0 w-full h-full"
+        style={{
+          height: '100vh',
+          width: '100vw',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
           bottom: 0,
           zIndex: 0,
           overflow: 'visible',
@@ -202,31 +260,58 @@ export default function Home() {
         />
       </div>
 
-      {/* BARRE DE RECHERCHE - Mobile */}
-      <div className="md:hidden absolute top-4 left-1/2 transform -translate-x-1/2 z-[9999] w-[calc(100vw-2rem)]">
-        <CitySearch onCitySelect={(lat, lon, name) => handleCitySelect(lat, lon, name, true)} />
+      {/* BARRE DE RECHERCHE + réglages - Mobile */}
+      <div className="md:hidden fixed top-4 left-4 right-4 z-[9999] flex items-center gap-2">
+        <div className="flex-1 min-w-0">
+          <CitySearch onCitySelect={(lat, lon, name) => handleCitySelect(lat, lon, name, true)} />
+        </div>
+        <MobileTopControls />
       </div>
 
-      {/* BARRE FLOTTANTE MOBILE - 4 boutons regroupés au-dessus du Bottom Sheet */}
+      {/* FAVORIS - Mobile */}
+      <div className="md:hidden fixed top-[4.25rem] left-4 right-4 z-[9998]">
+        <FavoritesBar
+          favorites={favorites}
+          selectedLocation={selectedLocation}
+          onSelect={(lat, lon, name) => handleCitySelect(lat, lon, name, true)}
+        />
+      </div>
+
+      {/* ACTIONS CARTE - Mobile : Géolocalisation + Plein écran, collées au panneau */}
       <MobileActionBar
         onGeolocate={handleGeolocate}
         onToggleFullscreen={() => setIsFullscreen(!isFullscreen)}
         isFullscreen={isFullscreen}
         isGeolocating={isGeolocating}
+        sheetHeight={isFullscreen ? 0 : sheetHeight}
       />
 
       {/* HEADER DESKTOP - Barre de recherche centrée, boutons à droite */}
-      {/* Barre de recherche centrée au milieu */}
-      <div className="hidden md:block absolute top-6 left-1/2 transform -translate-x-1/2 z-[9999] pointer-events-auto w-full max-w-md">
+      {/* Barre de recherche + favoris centrés au milieu */}
+      <div className="hidden md:flex absolute top-6 left-1/2 transform -translate-x-1/2 z-[9999] pointer-events-auto w-full max-w-md flex-col items-center gap-2">
         <CitySearch onCitySelect={(lat, lon, name) => handleCitySelect(lat, lon, name, true)} />
+        <FavoritesBar
+          favorites={favorites}
+          selectedLocation={selectedLocation}
+          onSelect={(lat, lon, name) => handleCitySelect(lat, lon, name, true)}
+        />
       </div>
 
       {/* Contrôles et Logo à droite */}
       <div className="hidden md:flex absolute top-6 right-6 z-[9999] pointer-events-auto items-center gap-4">
-        {/* Les 4 boutons d'action */}
+        {/* Les boutons d'action */}
         <div className="h-10 flex items-center">
           <LanguageSelector />
         </div>
+        <button
+          onClick={toggleUnits}
+          className={`h-10 ${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} rounded-lg px-3 backdrop-blur-md flex items-center justify-center gap-2 ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-slate-100'} transition-colors`}
+          aria-label="Toggle units"
+        >
+          <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-slate-700'}`}>
+            {temperatureUnit === 'fahrenheit' ? '°F' : '°C'}
+          </span>
+        </button>
         <button
           onClick={toggleDarkMode}
           className={`h-10 ${isDarkMode ? 'glass bg-black/40' : 'bg-white/90 border border-slate-200 shadow-lg'} rounded-lg px-3 backdrop-blur-md flex items-center justify-center gap-2 ${isDarkMode ? 'hover:bg-white/10' : 'hover:bg-slate-100'} transition-colors`}
@@ -269,15 +354,22 @@ export default function Home() {
       {/* BOTTOM SHEET - Mobile uniquement */}
       <div className="md:hidden">
         {!isFullscreen && (
-          <BottomSheet isOpen={true} defaultHeight={35}>
+          <BottomSheet isOpen={true} defaultHeight={35} onHeightChange={setSheetHeight}>
             <div className="space-y-3">
               <WeatherDisplay
                 weatherData={weatherData}
                 airQualityData={airQualityData}
                 loading={loading}
                 locationName={locationName}
+                sunrise={todaySunrise}
+                sunset={todaySunset}
+                uvIndex={todayUvIndex}
+                isFavorite={currentIsFavorite}
+                onToggleFavorite={handleToggleFavorite}
               />
-              
+
+              {hourlyData && <HourlyForecast hourlyData={hourlyData} loading={loading} />}
+
               {forecastData && (
                 <ForecastDisplay
                   forecastData={forecastData}
@@ -289,16 +381,14 @@ export default function Home() {
         )}
       </div>
 
-      {/* ACTION STACK - Mobile uniquement (rendue dans Map pour accéder à useMap) */}
-
       {/* PANNEAUX LATÉRAUX - Desktop uniquement (masqués en plein écran) */}
-      <div 
+      <div
         className={`hidden md:block absolute top-20 left-4 z-[9999] max-h-[calc(100vh-6rem)] overflow-y-auto space-y-4 transition-all duration-500 ease-in-out ${
-          isFullscreen 
-            ? 'opacity-0 pointer-events-none -translate-x-full' 
+          isFullscreen
+            ? 'opacity-0 pointer-events-none -translate-x-full'
             : 'opacity-100'
         }`}
-        style={{ 
+        style={{
           pointerEvents: 'none',
         }}
       >
@@ -308,9 +398,20 @@ export default function Home() {
             airQualityData={airQualityData}
             loading={loading}
             locationName={locationName}
+            sunrise={todaySunrise}
+            sunset={todaySunset}
+            uvIndex={todayUvIndex}
+            isFavorite={currentIsFavorite}
+            onToggleFavorite={handleToggleFavorite}
           />
         </div>
-        
+
+        {hourlyData && (
+          <div style={{ pointerEvents: 'auto' }} className="w-full max-w-[420px]">
+            <HourlyForecast hourlyData={hourlyData} loading={loading} />
+          </div>
+        )}
+
         {forecastData && (
           <div style={{ pointerEvents: 'auto' }} className="w-full max-w-[420px]">
             <ForecastDisplay
@@ -341,6 +442,14 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      {/* Message d'erreur */}
+      {errorMessage && (
+        <ErrorBanner message={errorMessage} onRetry={handleRetry} onDismiss={() => setErrorMessage(null)} />
+      )}
+
+      {/* Invite d'installation PWA */}
+      <InstallPrompt sheetHeight={isFullscreen ? 0 : sheetHeight} />
 
     </main>
   )

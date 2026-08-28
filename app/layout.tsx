@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { LanguageProvider } from '@/contexts/LanguageContext'
 import { DarkModeProvider } from '@/contexts/DarkModeContext'
+import { UnitsProvider } from '@/contexts/UnitsContext'
 
 const siteUrl = 'https://aetheria-tr1u.onrender.com'
 const title = 'Aetheria - Météo Immersive'
@@ -37,6 +38,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
+  themeColor: '#0b0e14',
 }
 
 export default function RootLayout({
@@ -51,7 +53,9 @@ export default function RootLayout({
       <body className="antialiased h-full w-full bg-[#0b0e14]">
         <DarkModeProvider>
           <LanguageProvider>
-            {children}
+            <UnitsProvider>
+              {children}
+            </UnitsProvider>
           </LanguageProvider>
         </DarkModeProvider>
       </body>

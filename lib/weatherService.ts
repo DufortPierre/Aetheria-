@@ -5,10 +5,12 @@ export interface WeatherData {
   longitude: number
   current: {
     temperature_2m: number
+    apparent_temperature: number
     relative_humidity_2m: number
     weather_code: number
     wind_speed_10m: number
     wind_direction_10m: number
+    wind_gusts_10m: number
     surface_pressure: number
     precipitation: number
     rain: number
@@ -29,6 +31,17 @@ export interface WeatherData {
   }
 }
 
+export interface HourlyForecastData {
+  latitude: number
+  longitude: number
+  hourly: {
+    time: string[]
+    temperature_2m: number[]
+    weather_code: number[]
+    precipitation_probability: number[]
+  }
+}
+
 export interface ForecastData {
   latitude: number
   longitude: number
@@ -40,6 +53,9 @@ export interface ForecastData {
     precipitation_sum: number[]
     wind_speed_10m_max: number[]
     wind_direction_10m_dominant: number[]
+    sunrise: string[]
+    sunset: string[]
+    uv_index_max: number[]
   }
   daily_units: {
     temperature_2m_max: string
@@ -124,7 +140,7 @@ export async function getCurrentWeather(
   lang: string = 'fr'
 ): Promise<WeatherData | null> {
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,wind_direction_10m,surface_pressure,precipitation,rain,snowfall,visibility&timezone=auto&language=${lang}`
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,surface_pressure,precipitation,rain,snowfall,visibility&timezone=auto&language=${lang}`
     
     const response = await fetch(url)
     
@@ -148,10 +164,10 @@ export async function getForecast(
   lang: string = 'fr'
 ): Promise<ForecastData | null> {
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,wind_direction_10m_dominant&timezone=auto&forecast_days=${days}&language=${lang}`
-    
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,wind_direction_10m_dominant,sunrise,sunset,uv_index_max&timezone=auto&forecast_days=${days}&language=${lang}`
+
     const response = await fetch(url)
-    
+
     if (!response.ok) {
       throw new Error('Erreur lors de la récupération des prévisions')
     }
@@ -160,6 +176,29 @@ export async function getForecast(
     return data as ForecastData
   } catch (error) {
     console.error('Erreur API prévisions:', error)
+    return null
+  }
+}
+
+// Obtenir les prévisions heure par heure (24h à partir de maintenant)
+export async function getHourlyForecast(
+  lat: number,
+  lon: number,
+  lang: string = 'fr'
+): Promise<HourlyForecastData | null> {
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,weather_code,precipitation_probability&timezone=auto&forecast_hours=24&language=${lang}`
+
+    const response = await fetch(url)
+
+    if (!response.ok) {
+      throw new Error('Erreur lors de la récupération des prévisions horaires')
+    }
+
+    const data = await response.json()
+    return data as HourlyForecastData
+  } catch (error) {
+    console.error('Erreur API prévisions horaires:', error)
     return null
   }
 }
@@ -473,4 +512,84 @@ export function getUserLocation(): Promise<{ lat: number; lon: number } | null> 
       }
     )
   })
+}
+
+// ---------------------------------------------------------------------------
+// Villes favorites
+// ---------------------------------------------------------------------------
+
+export interface FavoriteCity {
+  id: string
+  lat: number
+  lon: number
+  name: string
+}
+
+const FAVORITES_KEY = 'aetheria_favorite_cities'
+const MAX_FAVORITES = 8
+
+export function favoriteId(lat: number, lon: number): string {
+  return `${lat.toFixed(3)},${lon.toFixed(3)}`
+}
+
+export function getFavorites(): FavoriteCity[] {
+  if (typeof window === 'undefined') return []
+  try {
+    const saved = localStorage.getItem(FAVORITES_KEY)
+    return saved ? JSON.parse(saved) : []
+  } catch {
+    return []
+  }
+}
+
+function saveFavorites(favorites: FavoriteCity[]) {
+  try {
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites))
+  } catch {
+    console.warn('Impossible de sauvegarder les favoris')
+  }
+}
+
+export function isFavorite(lat: number, lon: number): boolean {
+  const id = favoriteId(lat, lon)
+  return getFavorites().some((f) => f.id === id)
+}
+
+// Ajoute ou retire une ville des favoris ; renvoie la liste à jour
+export function toggleFavorite(lat: number, lon: number, name: string): FavoriteCity[] {
+  const id = favoriteId(lat, lon)
+  const current = getFavorites()
+  const exists = current.some((f) => f.id === id)
+
+  const updated = exists
+    ? current.filter((f) => f.id !== id)
+    : [...current, { id, lat, lon, name }].slice(-MAX_FAVORITES)
+
+  saveFavorites(updated)
+  return updated
+}
+
+// ---------------------------------------------------------------------------
+// Unités (métrique / impérial)
+// ---------------------------------------------------------------------------
+
+export type TemperatureUnit = 'celsius' | 'fahrenheit'
+export type SpeedUnit = 'kmh' | 'mph'
+
+export function celsiusToFahrenheit(celsius: number): number {
+  return Math.round(celsius * 9 / 5 + 32)
+}
+
+export function kmhToMph(kmh: number): number {
+  return Math.round(kmh * 0.621371)
+}
+
+// Formate une température selon l'unité choisie (arrondie, sans le symbole °)
+export function formatTemperature(celsius: number, unit: TemperatureUnit): number {
+  return unit === 'fahrenheit' ? celsiusToFahrenheit(celsius) : Math.round(celsius)
+}
+
+// Formate une vitesse (déjà en km/h dans les données Open-Meteo) selon l'unité choisie
+export function formatSpeed(kmh: number, unit: SpeedUnit): number {
+  return unit === 'mph' ? kmhToMph(kmh) : Math.round(kmh)
 }

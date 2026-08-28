@@ -7,12 +7,18 @@ interface BottomSheetProps {
   children: ReactNode
   isOpen?: boolean
   defaultHeight?: number // Pourcentage de la hauteur de l'écran (0-100)
+  // Prévient le parent de la hauteur courante (en % de la hauteur d'écran), pour
+  // que les boutons flottants au-dessus du panneau puissent suivre sa position
+  // réelle au lieu d'être calés à un décalage fixe qui se décorrèle dès qu'on
+  // glisse le panneau.
+  onHeightChange?: (height: number) => void
 }
 
-export default function BottomSheet({ 
-  children, 
+export default function BottomSheet({
+  children,
   isOpen = true,
-  defaultHeight = 35 // Réduit à ~35% pour correspondre à ~140px de peek 
+  defaultHeight = 35, // Réduit à ~35% pour correspondre à ~140px de peek
+  onHeightChange,
 }: BottomSheetProps) {
   const { isDarkMode } = useDarkMode()
   const [height, setHeight] = useState(defaultHeight)
@@ -23,6 +29,10 @@ export default function BottomSheet({
 
   // Positions prédéfinies : collapsed, partial, expanded
   const snapPoints = [25, 50, 80] // Pourcentages de hauteur (réduit le max à 80%)
+
+  useEffect(() => {
+    onHeightChange?.(isOpen ? height : 0)
+  }, [height, isOpen, onHeightChange])
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setIsDragging(true)

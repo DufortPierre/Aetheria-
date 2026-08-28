@@ -12,7 +12,18 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>(getInitialLanguage)
+  // `getInitialLanguage()` lit localStorage/navigator.language, qui n'existent
+  // pas côté serveur : l'appeler directement dans l'initialiseur de useState
+  // faisait diverger le tout premier rendu client (langue détectée) du rendu
+  // serveur (toujours "fr"), et React levait une erreur d'hydratation sur
+  // quasiment toutes les visites non francophones. On démarre donc avec le même
+  // défaut que le serveur, puis on détecte la vraie langue juste après montage.
+  const [language, setLanguageState] = useState<Language>('fr')
+
+  useEffect(() => {
+    setLanguageState(getInitialLanguage())
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     // Sauvegarder la langue à chaque changement

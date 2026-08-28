@@ -9,6 +9,10 @@ import {
   Snowflake,
   CloudFog,
   CloudLightning,
+  Sunrise,
+  Sunset,
+  SunMedium,
+  Star,
 } from 'lucide-react'
 import {
   WeatherData,
@@ -16,16 +20,23 @@ import {
   getAQILabel,
   getPrecipitationIntensity,
   WEATHER_CODES,
-  getWindSpeedKmh,
+  formatTemperature,
+  formatSpeed,
 } from '@/lib/weatherService'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useDarkMode } from '@/contexts/DarkModeContext'
+import { useUnits } from '@/contexts/UnitsContext'
 
 interface WeatherDisplayProps {
   weatherData: WeatherData | null
   airQualityData: AirQualityData | null
   loading?: boolean
   locationName?: string
+  sunrise?: string
+  sunset?: string
+  uvIndex?: number
+  isFavorite?: boolean
+  onToggleFavorite?: () => void
 }
 
 // Skeleton loader avec effet shimmer
@@ -60,9 +71,17 @@ export default function WeatherDisplay({
   airQualityData,
   loading,
   locationName,
+  sunrise,
+  sunset,
+  uvIndex,
+  isFavorite,
+  onToggleFavorite,
 }: WeatherDisplayProps) {
   const { language, t } = useLanguage()
   const { isDarkMode } = useDarkMode()
+  const { temperatureUnit, speedUnit } = useUnits()
+  const degreeSymbol = temperatureUnit === 'fahrenheit' ? '°F' : '°C'
+  const speedUnitLabel = speedUnit === 'mph' ? 'mph' : t.kmh
 
   if (loading) {
     return <SkeletonLoader isDarkMode={isDarkMode} />
@@ -89,7 +108,8 @@ export default function WeatherDisplay({
     current.snowfall
   )
 
-  const windSpeedKmh = getWindSpeedKmh(current.wind_speed_10m)
+  const windSpeed = formatSpeed(current.wind_speed_10m, speedUnit)
+  const windGusts = formatSpeed(current.wind_gusts_10m, speedUnit)
 
   // Détecter les phénomènes spéciaux
   const hasFog = current.weather_code === 45 || current.weather_code === 48
@@ -128,13 +148,32 @@ export default function WeatherDisplay({
       {/* En-tête avec température */}
       <div className="mb-2 md:mb-3">
         {locationName && (
-          <p className={`text-xs md:text-sm ${isDarkMode ? 'text-white/80' : 'text-slate-900'} mb-0.5 md:mb-1 font-medium truncate`}>{locationName}</p>
+          <div className="flex items-center gap-1.5 mb-0.5 md:mb-1">
+            <p className={`text-xs md:text-sm ${isDarkMode ? 'text-white/80' : 'text-slate-900'} font-medium truncate`}>{locationName}</p>
+            {onToggleFavorite && (
+              <button
+                onClick={onToggleFavorite}
+                aria-label={isFavorite ? t.removeFromFavorites : t.addToFavorites}
+                className={`flex-shrink-0 p-0.5 rounded transition-colors ${
+                  isFavorite
+                    ? 'text-yellow-400'
+                    : isDarkMode ? 'text-white/30 hover:text-white/60' : 'text-slate-300 hover:text-slate-500'
+                }`}
+              >
+                <Star className={`w-3.5 h-3.5 ${isFavorite ? 'fill-current' : ''}`} />
+              </button>
+            )}
+          </div>
         )}
         <div className="flex items-baseline gap-2 md:gap-3 mb-1 md:mb-2">
-          <span className={`text-3xl md:text-5xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{Math.round(current.temperature_2m)}°C</span>
+          <span className={`text-3xl md:text-5xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+            {formatTemperature(current.temperature_2m, temperatureUnit)}{degreeSymbol}
+          </span>
           <div className="text-2xl md:text-4xl">{weatherCode.emoji}</div>
         </div>
-        <p className={`text-xs md:text-sm mb-0.5 md:mb-1 ${isDarkMode ? 'text-white/70' : 'text-slate-700'}`}>{weatherCode.label}</p>
+        <p className={`text-xs md:text-sm mb-0.5 md:mb-1 ${isDarkMode ? 'text-white/70' : 'text-slate-700'}`}>
+          {weatherCode.label} · {t.feelsLike} {formatTemperature(current.apparent_temperature, temperatureUnit)}{degreeSymbol}
+        </p>
         <p className={`text-[10px] md:text-xs ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`}>
           {new Date(current.time).toLocaleString(language === 'fr' ? 'fr-FR' : language === 'es' ? 'es-ES' : 'en-US', {
             weekday: 'short',
@@ -207,7 +246,12 @@ export default function WeatherDisplay({
             <Wind className={`w-3 h-3 md:w-4 md:h-4 ${isDarkMode ? 'text-cyan-400' : 'text-cyan-600'}`} />
             <span className={`text-[9px] md:text-xs ${isDarkMode ? 'text-white/70' : 'text-slate-600'}`}>{t.wind}</span>
           </div>
-          <p className={`text-sm md:text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{windSpeedKmh} {t.kmh}</p>
+          <p className={`text-sm md:text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{windSpeed} {speedUnitLabel}</p>
+          {windGusts > windSpeed && (
+            <p className={`text-[9px] md:text-[11px] ${isDarkMode ? 'text-white/50' : 'text-slate-500'}`}>
+              {t.gusts} {windGusts} {speedUnitLabel}
+            </p>
+          )}
         </div>
 
         {/* Visibilité */}
@@ -220,6 +264,41 @@ export default function WeatherDisplay({
             <p className={`text-sm md:text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
               {(current.visibility / 1000).toFixed(1)} {t.km}
             </p>
+          </div>
+        )}
+
+        {/* Indice UV */}
+        {typeof uvIndex === 'number' && (
+          <div className={`p-2 md:p-3 rounded-lg ${isDarkMode ? 'bg-white/10' : 'bg-slate-100/70 border border-slate-200'}`}>
+            <div className="flex items-center gap-1 md:gap-1.5 mb-0.5 md:mb-1">
+              <SunMedium className={`w-3 h-3 md:w-4 md:h-4 ${isDarkMode ? 'text-orange-400' : 'text-orange-600'}`} />
+              <span className={`text-[9px] md:text-xs ${isDarkMode ? 'text-white/70' : 'text-slate-600'}`}>{t.uvIndex}</span>
+            </div>
+            <p className={`text-sm md:text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{Math.round(uvIndex)}</p>
+          </div>
+        )}
+
+        {/* Lever / coucher du soleil */}
+        {sunrise && sunset && (
+          <div className={`p-2 md:p-3 rounded-lg col-span-2 flex items-center justify-around ${isDarkMode ? 'bg-white/10' : 'bg-slate-100/70 border border-slate-200'}`}>
+            <div className="flex items-center gap-1.5">
+              <Sunrise className={`w-3.5 h-3.5 md:w-4 md:h-4 ${isDarkMode ? 'text-amber-400' : 'text-amber-600'}`} />
+              <div>
+                <p className={`text-[9px] md:text-xs ${isDarkMode ? 'text-white/70' : 'text-slate-600'}`}>{t.sunrise}</p>
+                <p className={`text-xs md:text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                  {new Date(sunrise).toLocaleTimeString(language === 'fr' ? 'fr-FR' : language === 'es' ? 'es-ES' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Sunset className={`w-3.5 h-3.5 md:w-4 md:h-4 ${isDarkMode ? 'text-orange-400' : 'text-orange-600'}`} />
+              <div>
+                <p className={`text-[9px] md:text-xs ${isDarkMode ? 'text-white/70' : 'text-slate-600'}`}>{t.sunset}</p>
+                <p className={`text-xs md:text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                  {new Date(sunset).toLocaleTimeString(language === 'fr' ? 'fr-FR' : language === 'es' ? 'es-ES' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
+                </p>
+              </div>
+            </div>
           </div>
         )}
       </div>

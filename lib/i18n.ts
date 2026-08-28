@@ -58,6 +58,37 @@ export interface Translations {
   
   // Géolocalisation
   geolocating: string
+
+  // Ressenti, lever/coucher, UV, rafales
+  feelsLike: string
+  sunrise: string
+  sunset: string
+  uvIndex: string
+  gusts: string
+
+  // Prévisions horaires
+  hourlyForecast: string
+
+  // Favoris
+  favorites: string
+  addToFavorites: string
+  removeFromFavorites: string
+
+  // Erreurs / messages
+  errorWeatherLoad: string
+  errorGeolocationDenied: string
+  retry: string
+  dismiss: string
+
+  // Unités
+  units: string
+  celsius: string
+  fahrenheit: string
+
+  // Installation PWA
+  installTitle: string
+  installDescription: string
+  installAction: string
 }
 
 export const translations: Record<Language, Translations> = {
@@ -100,6 +131,25 @@ export const translations: Record<Language, Translations> = {
     forecast7Days: 'Prévisions 7 jours',
     today: "Aujourd'hui",
     geolocating: 'Géolocalisation...',
+    feelsLike: 'Ressenti',
+    sunrise: 'Lever du soleil',
+    sunset: 'Coucher du soleil',
+    uvIndex: 'Indice UV',
+    gusts: 'Rafales',
+    hourlyForecast: 'Prochaines heures',
+    favorites: 'Favoris',
+    addToFavorites: 'Ajouter aux favoris',
+    removeFromFavorites: 'Retirer des favoris',
+    errorWeatherLoad: 'Impossible de charger la météo',
+    errorGeolocationDenied: 'Géolocalisation refusée ou indisponible',
+    retry: 'Réessayer',
+    dismiss: 'Fermer',
+    units: 'Unités',
+    celsius: '°C',
+    fahrenheit: '°F',
+    installTitle: 'Installer Aetheria',
+    installDescription: "Ajoutez l'app à votre écran d'accueil pour un accès rapide.",
+    installAction: 'Installer',
   },
   en: {
     searchPlaceholder: 'Search for a city...',
@@ -140,6 +190,25 @@ export const translations: Record<Language, Translations> = {
     forecast7Days: '7-Day Forecast',
     today: 'Today',
     geolocating: 'Geolocating...',
+    feelsLike: 'Feels like',
+    sunrise: 'Sunrise',
+    sunset: 'Sunset',
+    uvIndex: 'UV Index',
+    gusts: 'Gusts',
+    hourlyForecast: 'Next hours',
+    favorites: 'Favorites',
+    addToFavorites: 'Add to favorites',
+    removeFromFavorites: 'Remove from favorites',
+    errorWeatherLoad: 'Unable to load weather data',
+    errorGeolocationDenied: 'Location access denied or unavailable',
+    retry: 'Retry',
+    dismiss: 'Dismiss',
+    units: 'Units',
+    celsius: '°C',
+    fahrenheit: '°F',
+    installTitle: 'Install Aetheria',
+    installDescription: 'Add the app to your home screen for quick access.',
+    installAction: 'Install',
   },
   es: {
     searchPlaceholder: 'Buscar una ciudad...',
@@ -180,6 +249,25 @@ export const translations: Record<Language, Translations> = {
     forecast7Days: 'Pronóstico 7 días',
     today: 'Hoy',
     geolocating: 'Geolocalización...',
+    feelsLike: 'Sensación térmica',
+    sunrise: 'Amanecer',
+    sunset: 'Atardecer',
+    uvIndex: 'Índice UV',
+    gusts: 'Ráfagas',
+    hourlyForecast: 'Próximas horas',
+    favorites: 'Favoritos',
+    addToFavorites: 'Añadir a favoritos',
+    removeFromFavorites: 'Quitar de favoritos',
+    errorWeatherLoad: 'No se pudo cargar el clima',
+    errorGeolocationDenied: 'Geolocalización denegada o no disponible',
+    retry: 'Reintentar',
+    dismiss: 'Cerrar',
+    units: 'Unidades',
+    celsius: '°C',
+    fahrenheit: '°F',
+    installTitle: 'Instalar Aetheria',
+    installDescription: 'Añade la app a tu pantalla de inicio para un acceso rápido.',
+    installAction: 'Instalar',
   },
 }
 
