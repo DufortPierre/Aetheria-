@@ -18,13 +18,7 @@ function isStandalone(): boolean {
   return window.matchMedia('(display-mode: standalone)').matches || nav.standalone === true
 }
 
-interface InstallPromptProps {
-  // Hauteur courante du BottomSheet mobile (% de la hauteur d'écran), pour caler
-  // la bannière juste au-dessus au lieu de la laisser sous le panneau.
-  sheetHeight: number
-}
-
-export default function InstallPrompt({ sheetHeight }: InstallPromptProps) {
+export default function InstallPrompt() {
   const { isDarkMode } = useDarkMode()
   const { t } = useLanguage()
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
@@ -71,14 +65,11 @@ export default function InstallPrompt({ sheetHeight }: InstallPromptProps) {
   if (!visible) return null
 
   return (
-    // Inline style has higher specificity than any class, so the mobile offset is
-    // passed as a CSS variable rather than a direct `bottom` value — that way the
-    // `md:bottom-6` utility can still take over on desktop instead of being
-    // permanently shadowed by the inline style.
-    <div
-      className="fixed left-4 right-[4.75rem] z-[9997] max-w-sm pointer-events-auto bottom-[calc(var(--sheet-bottom)+1rem)] md:left-6 md:right-auto md:bottom-6 md:w-full md:max-w-xs"
-      style={{ ['--sheet-bottom' as string]: `${sheetHeight}vh` } as React.CSSProperties}
-    >
+    // Se cale au-dessus du BottomSheet via la variable CSS qu'il écrit
+    // directement (--aetheria-sheet-height, voir components/BottomSheet.tsx) —
+    // le fallback à 0px couvre le desktop (pas de panneau) et le plein écran.
+    // `md:bottom-6` prend le relais sur desktop.
+    <div className="fixed left-4 right-[4.75rem] z-[9997] max-w-sm pointer-events-auto bottom-[calc(var(--aetheria-sheet-height,0px)+1rem)] md:left-6 md:right-auto md:bottom-6 md:w-full md:max-w-xs">
       <div
         className={`flex items-center gap-3 rounded-xl p-3 sm:p-4 backdrop-blur-md shadow-2xl border ${
           isDarkMode ? 'glass-strong bg-black/60 border-white/10' : 'bg-white border-slate-200'

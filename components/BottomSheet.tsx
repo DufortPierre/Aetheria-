@@ -7,18 +7,24 @@ interface BottomSheetProps {
   children: ReactNode
   isOpen?: boolean
   defaultHeight?: number // Pourcentage de la hauteur de l'écran (0-100)
-  // Prévient le parent de la hauteur courante (en % de la hauteur d'écran), pour
-  // que les boutons flottants au-dessus du panneau puissent suivre sa position
-  // réelle au lieu d'être calés à un décalage fixe qui se décorrèle dès qu'on
-  // glisse le panneau.
-  onHeightChange?: (height: number) => void
+}
+
+// Hauteur courante du panneau, exposée en variable CSS plutôt qu'en state React
+// remonté au parent : les boutons flottants au-dessus du panneau (MobileActionBar,
+// InstallPrompt) la lisent directement en CSS pour rester calés dessus. Écrire une
+// variable CSS est un aller simple vers le DOM, sans re-render — remonter la valeur
+// en state React aurait fait re-render toute la page (carte comprise) à chaque frame
+// de glissement, causant des saccades pendant le drag.
+const SHEET_HEIGHT_VAR = '--aetheria-sheet-height'
+
+function syncHeightVar(vh: number) {
+  document.documentElement.style.setProperty(SHEET_HEIGHT_VAR, `${vh}vh`)
 }
 
 export default function BottomSheet({
   children,
   isOpen = true,
   defaultHeight = 35, // Réduit à ~35% pour correspondre à ~140px de peek
-  onHeightChange,
 }: BottomSheetProps) {
   const { isDarkMode } = useDarkMode()
   const [height, setHeight] = useState(defaultHeight)
@@ -30,9 +36,18 @@ export default function BottomSheet({
   // Positions prédéfinies : collapsed, partial, expanded
   const snapPoints = [25, 50, 80] // Pourcentages de hauteur (réduit le max à 80%)
 
+  // Garder la variable CSS à jour sur les transitions d'ouverture/fermeture
+  // (les mises à jour pendant le glissement sont écrites directement dans les
+  // handlers ci-dessous, pas ici, pour éviter un re-render par frame).
   useEffect(() => {
-    onHeightChange?.(isOpen ? height : 0)
-  }, [height, isOpen, onHeightChange])
+    syncHeightVar(isOpen ? height : 0)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen])
+
+  // Remettre à zéro si le panneau est démonté (ex: passage en plein écran)
+  useEffect(() => {
+    return () => syncHeightVar(0)
+  }, [])
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setIsDragging(true)
@@ -42,25 +57,27 @@ export default function BottomSheet({
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging) return
-    
+
     const currentY = e.touches[0].clientY
     const deltaY = startY - currentY // Inversé car on tire vers le haut
     const newHeight = startHeight + (deltaY / window.innerHeight) * 100
-    
+
     // Limiter entre 10% et 90%
     const clampedHeight = Math.max(10, Math.min(90, newHeight))
     setHeight(clampedHeight)
+    syncHeightVar(clampedHeight)
   }
 
   const handleTouchEnd = () => {
     if (!isDragging) return
     setIsDragging(false)
-    
+
     // Snap to nearest snap point
     const nearestSnap = snapPoints.reduce((prev, curr) => {
       return Math.abs(curr - height) < Math.abs(prev - height) ? curr : prev
     })
     setHeight(nearestSnap)
+    syncHeightVar(nearestSnap)
   }
 
   // Mouse events pour desktop testing
@@ -79,6 +96,7 @@ export default function BottomSheet({
       const newHeight = startHeight + (deltaY / window.innerHeight) * 100
       const clampedHeight = Math.max(10, Math.min(90, newHeight))
       setHeight(clampedHeight)
+      syncHeightVar(clampedHeight)
     }
 
     const mouseUpHandler = () => {
@@ -87,13 +105,14 @@ export default function BottomSheet({
         return Math.abs(curr - height) < Math.abs(prev - height) ? curr : prev
       })
       setHeight(nearestSnap)
+      syncHeightVar(nearestSnap)
     }
 
     document.addEventListener('mousemove', mouseMoveHandler)
     document.addEventListener('mouseup', mouseUpHandler)
     document.body.style.cursor = 'grabbing'
     document.body.style.userSelect = 'none'
-    
+
     return () => {
       document.removeEventListener('mousemove', mouseMoveHandler)
       document.removeEventListener('mouseup', mouseUpHandler)
@@ -110,11 +129,14 @@ export default function BottomSheet({
       {height > 50 && (
         <div
           className="fixed inset-0 bg-black/20 z-[450] md:hidden"
-          onClick={() => setHeight(25)}
+          onClick={() => {
+            setHeight(25)
+            syncHeightVar(25)
+          }}
           style={{ touchAction: 'none' }}
         />
       )}
-      
+
       {/* Bottom Sheet */}
       <div
         ref={sheetRef}

@@ -4,7 +4,6 @@ import { useEffect, useState, useRef } from 'react'
 import { MapContainer, TileLayer, useMapEvents, useMap } from 'react-leaflet'
 import type { Map as LeafletMap } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { useLanguage } from '@/contexts/LanguageContext'
 
 
 interface MapProps {
@@ -344,7 +343,6 @@ export default function Map({
   isGeolocating = false,
   showRecenter = false
 }: MapProps) {
-  const { language } = useLanguage()
   const [isClient, setIsClient] = useState(false)
   const mapRef = useRef<LeafletMap | null>(null)
 
@@ -409,6 +407,7 @@ export default function Map({
           left: 0, 
           zIndex: 0,
           backgroundColor: isDarkMode ? '#0b0e14' : '#f1f5f9',
+          transition: 'background-color 0.3s ease',
           pointerEvents: 'auto' // Permettre les interactions
         }}
         className="dark-map"
@@ -425,9 +424,12 @@ export default function Map({
         boxZoom={false} // Désactiver boxZoom sur mobile (peut causer des problèmes)
         keyboard={true}
       >
-        {/* Tuiles principales - Change selon le mode */}
+        {/* Tuiles principales - Change selon le mode.
+            Pas de `key` ici volontairement : react-leaflet met alors juste à jour
+            l'URL du calque existant (Leaflet fait un fondu des tuiles) au lieu de
+            démonter/remonter tout le calque, ce qui donnait un flash noir/blanc
+            à chaque bascule jour/nuit. */}
         <TileLayer
-          key={`tiles-${isDarkMode ? 'dark' : 'light'}-${language}`}
           attribution={attribution}
           url={tileUrl}
           // Esri n'utilise pas de sous-domaines {s} : cette valeur est alors ignorée
@@ -443,7 +445,6 @@ export default function Map({
         {/* Calque de labels (villes, routes) par-dessus le fond sombre Esri */}
         {isDarkMode && (
           <TileLayer
-            key={`tiles-dark-labels-${language}`}
             url={darkLabelsUrl}
             maxZoom={19}
             tileSize={256}

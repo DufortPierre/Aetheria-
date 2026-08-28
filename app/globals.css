@@ -19,6 +19,17 @@ body {
   touch-action: pan-y;
 }
 
+/* Transition douce lors du basculement jour/nuit : les composants changent de
+   classes Tailwind (bg-*, border-*, text-*) instantanément selon isDarkMode,
+   ce qui donnait un rendu "cassé" au clic. On arme une transition sur les
+   propriétés de couleur sur tout le document ; ça ne coûte rien tant qu'aucune
+   valeur ne change réellement, et ça anime en douceur celles qui changent.
+   La carte Leaflet est exclue : elle gère déjà ses propres animations de
+   tuiles/zoom, qu'on ne veut pas perturber. */
+body :where(*):not(.leaflet-container, .leaflet-container *) {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
 /* Amélioration du scroll sur mobile */
 @media (max-width: 767px) {
   body {

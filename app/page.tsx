@@ -50,7 +50,6 @@ export default function Home() {
   const [flyToLocation, setFlyToLocation] = useState<{ lat: number; lon: number; zoom?: number } | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isGeolocating, setIsGeolocating] = useState(false)
-  const [sheetHeight, setSheetHeight] = useState(35)
   const [favorites, setFavorites] = useState<FavoriteCity[]>([])
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
@@ -83,26 +82,60 @@ export default function Home() {
     initializeLocation()
   }, [])
 
-  // Recharger les données météo quand la langue change
+  // Recharger le nom de la ville quand la langue change. Les valeurs météo elles-
+  // mêmes ne dépendent pas de la langue (Open-Meteo ne les traduit pas) : inutile
+  // de refaire les 4 appels météo à chaque changement de langue, seule la
+  // géolocalisation inverse (Nominatim) a besoin d'être relancée.
   useEffect(() => {
     if (selectedLocation) {
-      handleLocationClick(selectedLocation.lat, selectedLocation.lon, false)
+      refreshLocationName(selectedLocation.lat, selectedLocation.lon)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language])
 
-  // Actualisation automatique des données météo toutes les 5 minutes
+  // Actualisation automatique des données météo toutes les 5 minutes. Le nom de
+  // la ville ne change pas entre deux rafraîchissements : pas besoin de refaire
+  // la géolocalisation inverse à chaque fois. Ne fait rien si l'onglet/l'app est
+  // en arrière-plan, pour économiser batterie et data.
   useEffect(() => {
     if (!selectedLocation) return
 
     const interval = setInterval(() => {
-      // Actualiser les données silencieusement (sans loader) toutes les 5 minutes
-      handleLocationClick(selectedLocation.lat, selectedLocation.lon, false, false)
+      if (document.hidden) return
+      refreshWeatherData(selectedLocation.lat, selectedLocation.lon)
     }, 5 * 60 * 1000) // 5 minutes = 300 000 millisecondes
 
     // Nettoyer l'intervalle quand le composant se démonte ou la localisation change
     return () => clearInterval(interval)
   }, [selectedLocation, language]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Rafraîchit uniquement les valeurs météo (utilisé par le rafraîchissement
+  // périodique, où la ville n'a pas changé).
+  const refreshWeatherData = async (lat: number, lon: number) => {
+    try {
+      const [weather, airQuality, forecast, hourly] = await Promise.all([
+        getCurrentWeather(lat, lon, language),
+        getAirQuality(lat, lon),
+        getForecast(lat, lon, 7, language),
+        getHourlyForecast(lat, lon, language),
+      ])
+      setWeatherData(weather)
+      setAirQualityData(airQuality)
+      setForecastData(forecast)
+      setHourlyData(hourly)
+      setErrorMessage(null)
+    } catch (error) {
+      console.error('Erreur lors du rafraîchissement météo:', error)
+      setErrorMessage(t.errorWeatherLoad)
+    }
+  }
+
+  // Rafraîchit uniquement le nom de la ville (utilisé au changement de langue,
+  // où seule la traduction du nom via Nominatim doit être relancée).
+  const refreshLocationName = async (lat: number, lon: number) => {
+    const cityName = await reverseGeocode(lat, lon, language)
+    setLocationName(cityName)
+  }
 
   const handleLocationClick = async (lat: number, lon: number, updateLocation = true, showLoading = true) => {
     if (updateLocation) {
@@ -283,7 +316,6 @@ export default function Home() {
         onToggleFullscreen={() => setIsFullscreen(!isFullscreen)}
         isFullscreen={isFullscreen}
         isGeolocating={isGeolocating}
-        sheetHeight={isFullscreen ? 0 : sheetHeight}
       />
 
       {/* HEADER DESKTOP - Barre de recherche centrée, boutons à droite */}
@@ -354,7 +386,7 @@ export default function Home() {
       {/* BOTTOM SHEET - Mobile uniquement */}
       <div className="md:hidden">
         {!isFullscreen && (
-          <BottomSheet isOpen={true} defaultHeight={35} onHeightChange={setSheetHeight}>
+          <BottomSheet isOpen={true} defaultHeight={35}>
             <div className="space-y-3">
               <WeatherDisplay
                 weatherData={weatherData}
@@ -449,7 +481,7 @@ export default function Home() {
       )}
 
       {/* Invite d'installation PWA */}
-      <InstallPrompt sheetHeight={isFullscreen ? 0 : sheetHeight} />
+      <InstallPrompt />
 
     </main>
   )

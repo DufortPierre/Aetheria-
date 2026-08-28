@@ -8,11 +8,6 @@ interface MobileActionBarProps {
   onToggleFullscreen: () => void
   isFullscreen: boolean
   isGeolocating: boolean
-  // Hauteur courante du BottomSheet, en % de la hauteur d'écran. Les boutons se
-  // calent toujours juste au-dessus du panneau (au lieu d'un décalage fixe en
-  // pixels qui se décorrélait dès qu'on glissait le panneau ou changeait de
-  // taille d'écran, et finissait par flotter au milieu de l'écran).
-  sheetHeight: number
 }
 
 // Actions liées à la carte uniquement (Géolocalisation, Plein écran). Les
@@ -23,7 +18,6 @@ export default function MobileActionBar({
   onToggleFullscreen,
   isFullscreen,
   isGeolocating,
-  sheetHeight,
 }: MobileActionBarProps) {
   const { isDarkMode } = useDarkMode()
 
@@ -31,9 +25,14 @@ export default function MobileActionBar({
   const iconClass = `w-5 h-5 ${isDarkMode ? 'text-white' : 'text-slate-700'}`
 
   return (
+    // Se cale toujours juste au-dessus du BottomSheet via la variable CSS qu'il
+    // écrit directement (--aetheria-sheet-height) plutôt qu'un state React
+    // remonté par le parent, ce qui évite de re-render toute la page à chaque
+    // frame de glissement du panneau (voir components/BottomSheet.tsx). Le
+    // fallback à 0px couvre le plein écran (panneau démonté) et le premier
+    // rendu avant que le panneau n'ait écrit sa hauteur.
     <div
-      className="fixed right-4 z-[1000] flex flex-col gap-3 pointer-events-auto md:hidden transition-[bottom] duration-200 ease-out"
-      style={{ bottom: `calc(${sheetHeight}vh + 1rem)` }}
+      className="fixed right-4 z-[1000] flex flex-col gap-3 pointer-events-auto md:hidden bottom-[calc(var(--aetheria-sheet-height,0px)+1rem)] transition-[bottom] duration-150 ease-out"
     >
       {/* Bouton Géolocalisation */}
       <button
