@@ -16,7 +16,7 @@ const nextConfig = {
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: https://*.basemaps.cartocdn.com https://*.tile.openstreetmap.org",
+      "img-src 'self' data: https://server.arcgisonline.com https://*.tile.openstreetmap.org",
       "font-src 'self' data:",
       "connect-src 'self' https://api.open-meteo.com https://air-quality-api.open-meteo.com",
       "frame-ancestors 'none'",

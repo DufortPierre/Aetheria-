@@ -367,12 +367,20 @@ export default function Map({
     )
   }
 
-  // Choisir les tuiles selon le mode
+  // Choisir les tuiles selon le mode.
+  // Le fournisseur précédent (CartoDB "dark_all") exige désormais une clé API
+  // pour un usage gratuit — sans elle, les tuiles s'affichent avec un filigrane
+  // "API KEY REQUIRED". On utilise à la place le fond "Dark Gray Canvas" d'Esri
+  // (server.arcgisonline.com), en libre accès sans inscription ni clé.
+  // Note : contrairement à Carto/OSM, l'ordre des tuiles Esri est {z}/{y}/{x}.
   const tileUrl = isDarkMode
-    ? `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png`
+    ? 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
     : `https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png`
+  // Calque de labels (villes, routes) à superposer au fond sombre, fourni
+  // séparément par Esri en PNG transparent.
+  const darkLabelsUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
   const attribution = isDarkMode
-    ? '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+    ? '&copy; <a href="https://www.esri.com">Esri</a>, HERE, Garmin, FAO, NOAA, USGS'
     : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 
   return (
@@ -422,13 +430,27 @@ export default function Map({
           key={`tiles-${isDarkMode ? 'dark' : 'light'}-${language}`}
           attribution={attribution}
           url={tileUrl}
-          subdomains={isDarkMode ? "abcd" : "abc"}
+          // Esri n'utilise pas de sous-domaines {s} : cette valeur est alors ignorée
+          // par Leaflet, mais lui passer `undefined` explicitement casse son code
+          // interne qui suppose toujours une chaîne définie.
+          subdomains="abc"
           maxZoom={19}
           tileSize={256}
           zoomOffset={0}
-          opacity={isDarkMode ? 0.8 : 1.0}
+          opacity={1}
         />
-        
+
+        {/* Calque de labels (villes, routes) par-dessus le fond sombre Esri */}
+        {isDarkMode && (
+          <TileLayer
+            key={`tiles-dark-labels-${language}`}
+            url={darkLabelsUrl}
+            maxZoom={19}
+            tileSize={256}
+            zoomOffset={0}
+          />
+        )}
+
         <RemoveControls />
         <MapInitializer />
         <MapClickHandler onClick={onLocationClick} />
