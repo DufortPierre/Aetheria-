@@ -5,7 +5,6 @@ import { MapContainer, TileLayer, useMapEvents, useMap } from 'react-leaflet'
 import type { Map as LeafletMap } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { useLanguage } from '@/contexts/LanguageContext'
-import type { Language } from '@/lib/i18n'
 
 
 interface MapProps {
@@ -55,7 +54,7 @@ function RemoveControls() {
             elements.forEach((element) => {
               try {
                 element.remove()
-              } catch (e) {
+              } catch {
                 // Ignorer
               }
             })
@@ -68,7 +67,7 @@ function RemoveControls() {
               if (container.contains(element) || element.closest('.leaflet-container')) {
                 try {
                   element.remove()
-                } catch (e) {
+                } catch {
                   // Ignorer
                 }
               }
@@ -77,21 +76,25 @@ function RemoveControls() {
         }
 
         // Supprimer les contrôles Leaflet enregistrés
-        const controls = (map as any)._controls || []
-        controls.forEach((control: any) => {
+        // `_controls` est une propriété interne non documentée de Leaflet (absente
+        // des types publics), d'où le cast explicite plutôt qu'un `any` opaque.
+        type InternalControl = { options?: { className?: string } }
+        const controls =
+          (map as unknown as { _controls?: InternalControl[] })._controls || []
+        controls.forEach((control) => {
           try {
             if (control && (
               control.options?.className?.includes('compass') ||
               control.options?.className?.includes('rotate') ||
               control.options?.className?.includes('navigation')
             )) {
-              map.removeControl(control)
+              map.removeControl(control as unknown as Parameters<typeof map.removeControl>[0])
             }
-          } catch (e) {
+          } catch {
             // Ignorer
           }
         })
-      } catch (e) {
+      } catch {
         // Ignorer silencieusement
       }
     }
@@ -117,7 +120,7 @@ function RemoveControls() {
                 element.querySelector?.('.leaflet-control-compass, .leaflet-control-rotate, .leaflet-control-navigation')) {
               try {
                 element.remove()
-              } catch (e) {
+              } catch {
                 // Ignorer
               }
             }
@@ -158,7 +161,7 @@ function MapInitializer() {
         if (oldContainer && oldContainer.parentNode) {
           globalMapInstance.remove()
         }
-      } catch (e) {
+      } catch {
         // Ignorer les erreurs silencieusement
       }
     }
@@ -170,7 +173,7 @@ function MapInitializer() {
         if (map && map.getContainer() && map.getContainer().offsetHeight > 0) {
           map.invalidateSize()
         }
-      } catch (e) {
+      } catch {
         // Ignorer les erreurs silencieusement
       }
     }, 100)
@@ -180,7 +183,7 @@ function MapInitializer() {
         if (map && map.getContainer() && map.getContainer().offsetHeight > 0) {
           map.invalidateSize()
         }
-      } catch (e) {
+      } catch {
         // Ignorer les erreurs silencieusement
       }
     }, 500)
@@ -301,7 +304,8 @@ function FlyToLocation({ location }: { location: { lat: number; lon: number; zoo
           if (map && map.getContainer() && map.getContainer().offsetHeight > 0) {
             const container = map.getContainer()
             // Vérifier que la carte Leaflet est bien initialisée
-            if (container && (container as any)._leaflet_id) {
+            // (`_leaflet_id` est une propriété interne non documentée)
+            if (container && (container as unknown as { _leaflet_id?: number })._leaflet_id) {
               map.flyTo([location.lat, location.lon], location.zoom || 10, {
                 duration: 1.5,
               })
@@ -310,7 +314,7 @@ function FlyToLocation({ location }: { location: { lat: number; lon: number; zoo
               setTimeout(tryFlyTo, 100)
             }
           }
-        } catch (e) {
+        } catch {
           // Retry silencieusement
           setTimeout(tryFlyTo, 200)
         }

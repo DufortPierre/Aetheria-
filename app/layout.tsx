@@ -1,11 +1,42 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { LanguageProvider } from '@/contexts/LanguageContext'
 import { DarkModeProvider } from '@/contexts/DarkModeContext'
 
+const siteUrl = 'https://aetheria-tr1u.onrender.com'
+const title = 'Aetheria - Météo Immersive'
+const description = 'Application météo moderne et immersive avec carte interactive mondiale et prévisions sur 7 jours.'
+
 export const metadata: Metadata = {
-  title: 'Aetheria - Météo Immersive',
-  description: 'Application météo moderne et immersive avec cartes interactives',
+  metadataBase: new URL(siteUrl),
+  title,
+  description,
+  applicationName: 'Aetheria',
+  openGraph: {
+    title,
+    description,
+    url: siteUrl,
+    siteName: 'Aetheria',
+    images: [{ url: '/opengraph-image', width: 1200, height: 630 }],
+    locale: 'fr_FR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title,
+    description,
+    images: ['/opengraph-image'],
+  },
+}
+
+// Autrefois dupliqué à la main dans <head> en plus du <meta viewport> par défaut
+// de Next.js (deux balises viewport contradictoires dans le HTML final). En
+// passant par cet export dédié, Next.js n'en génère qu'une seule.
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
 }
 
 export default function RootLayout({
@@ -14,62 +45,9 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
+    // `lang` de secours pour le tout premier rendu serveur ; LanguageProvider le
+    // met ensuite à jour côté client dès que la langue choisie est connue.
     <html lang="fr" className="h-full w-full">
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                var originalWarn = console.warn;
-                var originalError = console.error;
-                var originalLog = console.log;
-                
-                function shouldSuppress(message) {
-                  if (!message) return false;
-                  return message.indexOf('-webkit-text-size-adjust') !== -1 ||
-                    message.indexOf('-moz-osx-font-smoothing') !== -1 ||
-                    message.indexOf('image-rendering') !== -1 ||
-                    message.indexOf('behavior') !== -1 ||
-                    message.indexOf('progid') !== -1 ||
-                    message.indexOf('Déclaration abandonnée') !== -1 ||
-                    message.indexOf('Jeu de règles ignoré') !== -1 ||
-                    (message.indexOf('Erreur') !== -1 && message.indexOf('analyse') !== -1) ||
-                    (message.indexOf('Propriété') !== -1 && message.indexOf('inconnue') !== -1) ||
-                    message.indexOf('mozPressure') !== -1 ||
-                    message.indexOf('mozInputSource') !== -1 ||
-                    message.indexOf('PointerEvent.pressure') !== -1 ||
-                    message.indexOf('PointerEvent.pointerType') !== -1 ||
-                    message.indexOf('est obsolète') !== -1 ||
-                    message.indexOf('obsolète') !== -1 ||
-                    message.indexOf('deprecated') !== -1;
-                }
-                
-                console.warn = function() {
-                  var message = Array.prototype.join.call(arguments, ' ');
-                  if (!shouldSuppress(message)) {
-                    originalWarn.apply(console, arguments);
-                  }
-                };
-                
-                console.error = function() {
-                  var message = Array.prototype.join.call(arguments, ' ');
-                  if (!shouldSuppress(message)) {
-                    originalError.apply(console, arguments);
-                  }
-                };
-                
-                console.log = function() {
-                  var message = Array.prototype.join.call(arguments, ' ');
-                  if (!shouldSuppress(message)) {
-                    originalLog.apply(console, arguments);
-                  }
-                };
-              })();
-            `,
-          }}
-        />
-      </head>
       <body className="antialiased h-full w-full bg-[#0b0e14]">
         <DarkModeProvider>
           <LanguageProvider>

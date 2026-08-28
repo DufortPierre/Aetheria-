@@ -103,9 +103,18 @@ http://localhost:3000
 ```
 Aetheria/
 ├── app/
+│   ├── api/
+│   │   ├── geocode/route.ts         # Proxy serveur -> Nominatim (recherche)
+│   │   └── reverse-geocode/route.ts # Proxy serveur -> Nominatim (inverse)
 │   ├── globals.css          # Styles globaux, glassmorphism, thèmes
-│   ├── layout.tsx           # Layout principal avec providers
-│   └── page.tsx             # Page d'accueil principale
+│   ├── layout.tsx           # Layout principal avec providers + metadata
+│   ├── page.tsx             # Page d'accueil principale
+│   ├── robots.ts            # /robots.txt généré
+│   ├── sitemap.ts           # /sitemap.xml généré
+│   ├── manifest.ts          # /manifest.webmanifest (PWA)
+│   ├── icon.tsx             # Favicon généré
+│   ├── apple-icon.tsx       # Icône iOS générée
+│   └── opengraph-image.tsx  # Image de partage réseaux sociaux
 ├── components/
 │   ├── Map.tsx              # Composant carte Leaflet
 │   ├── MapWrapper.tsx       # Wrapper pour gestion SSR
@@ -114,13 +123,28 @@ Aetheria/
 │   ├── CitySearch.tsx       # Barre de recherche universelle
 │   └── LanguageSelector.tsx # Sélecteur de langue
 ├── contexts/
-│   ├── LanguageContext.tsx  # Gestion i18n
+│   ├── LanguageContext.tsx  # Gestion i18n (+ synchro <html lang>)
 │   └── DarkModeContext.tsx  # Gestion thème sombre/clair
 ├── lib/
-│   ├── weatherService.ts   # Services API (Open-Meteo, Nominatim)
+│   ├── weatherService.ts   # Services API (Open-Meteo, proxy géocodage)
 │   └── i18n.ts              # Dictionnaires de traduction
+├── next.config.js           # En-têtes de sécurité (CSP, HSTS, ...)
 └── ...
 ```
+
+### 🔒 Sécurité & SEO
+
+- La recherche/le géocodage passent désormais par `app/api/geocode` et
+  `app/api/reverse-geocode` plutôt que d'appeler Nominatim directement depuis
+  le navigateur : cela respecte sa politique d'usage (User-Agent identifiant
+  l'app) et évite d'exposer l'IP de chaque visiteur à chaque frappe.
+- `next.config.js` ajoute des en-têtes de sécurité (CSP, HSTS,
+  `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`,
+  `Permissions-Policy`) et désactive l'en-tête `X-Powered-By`.
+- `robots.txt`, `sitemap.xml`, `manifest.webmanifest`, favicon et image
+  Open Graph/Twitter sont générés via les conventions de fichiers Next.js 15.
+- `<html lang>` est synchronisé dynamiquement avec la langue choisie dans
+  l'interface (FR/EN/ES) au lieu d'être figé en dur.
 
 ## 🌐 APIs Utilisées
 

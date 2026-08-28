@@ -20,7 +20,7 @@ import {
   AirQualityData,
   ForecastData
 } from '@/lib/weatherService'
-import { Loader2, Maximize2, Minimize2, MapPin, Sun, Moon, Target, ZoomIn, ZoomOut } from 'lucide-react'
+import { Loader2, Maximize2, Minimize2, MapPin, Sun, Moon } from 'lucide-react'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { useDarkMode } from '@/contexts/DarkModeContext'
 

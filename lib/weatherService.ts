@@ -217,39 +217,60 @@ export async function getAirQuality(
         time: data.hourly.time[firstIndex] ?? new Date().toISOString(),
       }
     } as AirQualityData
-  } catch (error) {
+  } catch {
     // Erreur silencieuse - la qualité de l'air n'est pas critique
     return null
   }
 }
 
-// Recherche de ville (géocodage) avec Nominatim - Support universel (Chinois, Japonais, Arabe, etc.)
+interface NominatimAddress {
+  city?: string
+  town?: string
+  village?: string
+  municipality?: string
+  state?: string
+  region?: string
+  province?: string
+  county?: string
+  country?: string
+}
+
+interface NominatimResult {
+  place_id?: number
+  lat: string
+  lon: string
+  name?: string
+  display_name?: string
+  address?: NominatimAddress
+}
+
+// Recherche de ville (géocodage) - Support universel (Chinois, Japonais, Arabe, etc.)
+//
+// Passe par notre propre route API (/api/geocode) plutôt que d'appeler Nominatim
+// directement depuis le navigateur : le header "User-Agent" qu'on essayait de fixer
+// ci-dessous est en réalité un header interdit que fetch() ignore silencieusement
+// côté navigateur (spec Fetch), donc la politique d'usage de Nominatim (qui exige un
+// User-Agent identifiant l'app : https://operations.osmfoundation.org/policies/nominatim/)
+// n'était jamais respectée. Le proxy serveur envoie, lui, un vrai User-Agent.
 export async function searchCity(query: string, lang: string = 'fr'): Promise<GeocodingResult[]> {
   if (!query || query.length < 1) {
     return []
   }
 
   try {
-    // Utiliser Nominatim pour un support universel de tous les alphabets
-    // encodeURIComponent() gère correctement UTF-8 pour tous les caractères
-    const encodedQuery = encodeURIComponent(query)
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodedQuery}&addressdetails=1&limit=10&accept-language=${lang}`
-    
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Aetheria Weather App', // Nominatim requiert un User-Agent
-        'Accept': 'application/json',
-      },
-    })
-    
+    const response = await fetch(
+      `/api/geocode?q=${encodeURIComponent(query)}&lang=${lang}`
+    )
+
     if (!response.ok) {
       throw new Error('Erreur lors de la recherche de ville')
     }
 
-    const data = await response.json()
-    
+    const data: unknown = await response.json()
+    if (!Array.isArray(data)) return []
+
     // Convertir le format Nominatim vers notre format GeocodingResult
-    return data.map((item: any, index: number) => {
+    return (data as NominatimResult[]).map((item, index) => {
       const address = item.address || {}
       // Utiliser le nom principal ou le display_name pour le nom de la ville
       // display_name contient souvent le nom dans la langue locale
@@ -276,22 +297,16 @@ export async function searchCity(query: string, lang: string = 'fr'): Promise<Ge
   }
 }
 
-// Reverse geocoding : transformer des coordonnées en nom de ville (Nominatim - OpenStreetMap)
+// Reverse geocoding : transformer des coordonnées en nom de ville
+// Passe par /api/reverse-geocode (voir le commentaire de searchCity ci-dessus).
 export async function reverseGeocode(
   lat: number,
   lon: number,
   lang: string = 'fr'
 ): Promise<string> {
   try {
-    // Utiliser Nominatim avec le paramètre de langue
-    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1&accept-language=${lang}`
-    
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Aetheria Weather App', // Requis par Nominatim
-      },
-    })
-    
+    const response = await fetch(`/api/reverse-geocode?lat=${lat}&lon=${lon}&lang=${lang}`)
+
     if (!response.ok) {
       return `Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)}`
     }
@@ -410,7 +425,7 @@ export function saveLastLocation(lat: number, lon: number, name: string) {
   if (typeof window !== 'undefined') {
     try {
       localStorage.setItem('aetheria_last_location', JSON.stringify({ lat, lon, name }))
-    } catch (e) {
+    } catch {
       console.warn('Impossible de sauvegarder la dernière localisation')
     }
   }
@@ -424,7 +439,7 @@ export function getLastLocation(): { lat: number; lon: number; name: string } | 
       if (saved) {
         return JSON.parse(saved)
       }
-    } catch (e) {
+    } catch {
       console.warn('Impossible de récupérer la dernière localisation')
     }
   }

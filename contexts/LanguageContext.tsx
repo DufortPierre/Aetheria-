@@ -19,6 +19,13 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     saveLanguage(language)
   }, [language])
 
+  // Garder <html lang="..."> synchronisé avec la langue choisie : la balise est
+  // codée en dur côté serveur (rendu initial), donc c'est ici qu'on la met à jour
+  // pour l'accessibilité (lecteurs d'écran) et le SEO à chaque changement.
+  useEffect(() => {
+    document.documentElement.lang = language
+  }, [language])
+
   const setLanguage = (lang: Language) => {
     setLanguageState(lang)
   }
